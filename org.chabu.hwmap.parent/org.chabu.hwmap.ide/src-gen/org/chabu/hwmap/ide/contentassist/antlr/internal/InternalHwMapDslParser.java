@@ -22,9 +22,9 @@ import java.util.ArrayList;
 @SuppressWarnings("all")
 public class InternalHwMapDslParser extends AbstractInternalContentAssistParser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "RULE_INT_DEC", "RULE_INT_HEX", "RULE_OP_2DOT", "RULE_ID", "RULE_STRING", "RULE_ML_COMMENT", "RULE_SL_COMMENT", "RULE_WS", "RULE_ANY_OTHER", "'VHDL'", "'C'", "'Output'", "'Component'", "'{'", "'}'", "'Block'", "'['", "']'", "'Constant'"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "RULE_INT_DEC", "RULE_INT_HEX", "RULE_OP_2DOT", "RULE_STRING", "RULE_ID", "RULE_ML_COMMENT", "RULE_SL_COMMENT", "RULE_WS", "RULE_ANY_OTHER", "'VHDL'", "'C'", "'Output'", "'Component'", "'{'", "'}'", "'Block'", "'['", "']'", "'Constant'"
     };
-    public static final int RULE_STRING=8;
+    public static final int RULE_STRING=7;
     public static final int RULE_SL_COMMENT=10;
     public static final int T__19=19;
     public static final int T__15=15;
@@ -36,7 +36,7 @@ public class InternalHwMapDslParser extends AbstractInternalContentAssistParser 
     public static final int T__14=14;
     public static final int EOF=-1;
     public static final int RULE_INT_DEC=4;
-    public static final int RULE_ID=7;
+    public static final int RULE_ID=8;
     public static final int RULE_WS=11;
     public static final int RULE_ANY_OTHER=12;
     public static final int T__22=22;
@@ -4357,21 +4357,31 @@ public class InternalHwMapDslParser extends AbstractInternalContentAssistParser 
 
 
     // $ANTLR start "rule__Constant__Group__2__Impl"
-    // InternalHwMapDsl.g:1429:1: rule__Constant__Group__2__Impl : ( RULE_ID ) ;
+    // InternalHwMapDsl.g:1429:1: rule__Constant__Group__2__Impl : ( ( rule__Constant__NameAssignment_2 ) ) ;
     public final void rule__Constant__Group__2__Impl() throws RecognitionException {
 
         		int stackSize = keepStackSize();
         	
         try {
-            // InternalHwMapDsl.g:1433:1: ( ( RULE_ID ) )
-            // InternalHwMapDsl.g:1434:1: ( RULE_ID )
+            // InternalHwMapDsl.g:1433:1: ( ( ( rule__Constant__NameAssignment_2 ) ) )
+            // InternalHwMapDsl.g:1434:1: ( ( rule__Constant__NameAssignment_2 ) )
             {
-            // InternalHwMapDsl.g:1434:1: ( RULE_ID )
-            // InternalHwMapDsl.g:1435:2: RULE_ID
+            // InternalHwMapDsl.g:1434:1: ( ( rule__Constant__NameAssignment_2 ) )
+            // InternalHwMapDsl.g:1435:2: ( rule__Constant__NameAssignment_2 )
             {
-             before(grammarAccess.getConstantAccess().getIDTerminalRuleCall_2()); 
-            match(input,RULE_ID,FOLLOW_2); 
-             after(grammarAccess.getConstantAccess().getIDTerminalRuleCall_2()); 
+             before(grammarAccess.getConstantAccess().getNameAssignment_2()); 
+            // InternalHwMapDsl.g:1436:2: ( rule__Constant__NameAssignment_2 )
+            // InternalHwMapDsl.g:1436:3: rule__Constant__NameAssignment_2
+            {
+            pushFollow(FOLLOW_2);
+            rule__Constant__NameAssignment_2();
+
+            state._fsp--;
+
+
+            }
+
+             after(grammarAccess.getConstantAccess().getNameAssignment_2()); 
 
             }
 
@@ -5313,6 +5323,43 @@ public class InternalHwMapDslParser extends AbstractInternalContentAssistParser 
     }
     // $ANTLR end "rule__Constant__ValueAssignment_1"
 
+
+    // $ANTLR start "rule__Constant__NameAssignment_2"
+    // InternalHwMapDsl.g:1790:1: rule__Constant__NameAssignment_2 : ( RULE_ID ) ;
+    public final void rule__Constant__NameAssignment_2() throws RecognitionException {
+
+        		int stackSize = keepStackSize();
+        	
+        try {
+            // InternalHwMapDsl.g:1794:1: ( ( RULE_ID ) )
+            // InternalHwMapDsl.g:1795:2: ( RULE_ID )
+            {
+            // InternalHwMapDsl.g:1795:2: ( RULE_ID )
+            // InternalHwMapDsl.g:1796:3: RULE_ID
+            {
+             before(grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0()); 
+            match(input,RULE_ID,FOLLOW_2); 
+             after(grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0()); 
+
+            }
+
+
+            }
+
+        }
+        catch (RecognitionException re) {
+            reportError(re);
+            recover(input,re);
+        }
+        finally {
+
+            	restoreStackSize(stackSize);
+
+        }
+        return ;
+    }
+    // $ANTLR end "rule__Constant__NameAssignment_2"
+
     // Delegated rules
 
 
@@ -5324,8 +5371,8 @@ public class InternalHwMapDslParser extends AbstractInternalContentAssistParser 
     public static final BitSet FOLLOW_4 = new BitSet(new long[]{0x0000000000008002L});
     public static final BitSet FOLLOW_5 = new BitSet(new long[]{0x0000000000008000L});
     public static final BitSet FOLLOW_6 = new BitSet(new long[]{0x0000000000006000L});
-    public static final BitSet FOLLOW_7 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_8 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_7 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_8 = new BitSet(new long[]{0x0000000000000100L});
     public static final BitSet FOLLOW_9 = new BitSet(new long[]{0x0000000000020000L});
     public static final BitSet FOLLOW_10 = new BitSet(new long[]{0x00000000000C0030L});
     public static final BitSet FOLLOW_11 = new BitSet(new long[]{0x0000000000080032L});

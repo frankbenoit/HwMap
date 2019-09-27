@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
 import org.chabu.hwmap.hwMapDsl.Component
+import org.chabu.hwmap.hwMapDsl.Output
 
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)
@@ -56,21 +57,57 @@ class HwMapDslParsingTest {
 		val errors = result.eResource.errors
 		//errors.get(0).
 		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
-	}
 
-	@Test
-	def void parseComponent() {
-		val result = parseHelper.parse('''
-			Component CapSim {
-			}
-		''')
-		Assertions.assertNotNull(result)
-		val errors = result.eResource.errors
-		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
+		val out = result.outputs.get(0) as Output
+		Assertions.assertEquals("VHDL", out.mode );
+		Assertions.assertEquals("../relpath", out.path );
 		
 		val comp = result.components.get(0) as Component
 		Assertions.assertEquals("CapSim", comp.compName );
+
+		val reg = comp.blocks.get(0)
+		Assertions.assertEquals("Regs", reg.name );
+		Assertions.assertEquals(0x20, reg.size );
+		
+		val regControl = reg.regs.get(0)
+		Assertions.assertEquals("Control", regControl.name );
+		Assertions.assertEquals(0x00, regControl.addr );
+		
+		val regStatus = reg.regs.get(1)
+		Assertions.assertEquals("Status", regStatus.name );
+		Assertions.assertEquals(0x04, regStatus.addr );
+
+		val bitsStatusIrq = regStatus.bits.get(0)
+		Assertions.assertEquals(0, bitsStatusIrq.range.left );
+		Assertions.assertEquals(null, bitsStatusIrq.range.right );
+		
+		val bitsStatusCommand = regStatus.bits.get(1)
+		Assertions.assertEquals(7, bitsStatusCommand.range.left );
+		Assertions.assertEquals(4, bitsStatusCommand.range.right );
+
+		Assertions.assertEquals("Nothing", bitsStatusCommand.consts.get(0).name );
+		Assertions.assertEquals(0, bitsStatusCommand.consts.get(0).value );
+		
+		Assertions.assertEquals("Start", bitsStatusCommand.consts.get(1).name );
+		Assertions.assertEquals(1, bitsStatusCommand.consts.get(1).value );
+				
+		val regModVersion = reg.regs.get(2)
+		Assertions.assertEquals("ModVersion", regModVersion.name );
+		Assertions.assertEquals(0x08, regModVersion.addr );
+		Assertions.assertEquals("Value", regModVersion.consts.get(0).name );
+		Assertions.assertEquals(0x12341200, regModVersion.consts.get(0).value );
+		
+		val instReg = comp.insts.get(0);
+		Assertions.assertEquals(0x0000, instReg.addr );
+		Assertions.assertEquals("Regs", instReg.type );
+		Assertions.assertEquals(null, instReg.name );
+		
+		val instMem = comp.insts.get(1);
+		Assertions.assertEquals(0x1000, instMem.addr );
+		Assertions.assertEquals("TraceMem", instMem.type );
+		Assertions.assertEquals("TraceMem_A", instMem.name );
 		
 	}
+
 
 }

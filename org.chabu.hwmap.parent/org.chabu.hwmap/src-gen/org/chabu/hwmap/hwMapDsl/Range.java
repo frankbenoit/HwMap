@@ -29,12 +29,12 @@ public interface Range extends EObject
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Left</em>' attribute.
-   * @see #setLeft(int)
+   * @see #setLeft(Integer)
    * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getRange_Left()
    * @model
    * @generated
    */
-  int getLeft();
+  Integer getLeft();
 
   /**
    * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Range#getLeft <em>Left</em>}' attribute.
@@ -44,19 +44,19 @@ public interface Range extends EObject
    * @see #getLeft()
    * @generated
    */
-  void setLeft(int value);
+  void setLeft(Integer value);
 
   /**
    * Returns the value of the '<em><b>Right</b></em>' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Right</em>' attribute.
-   * @see #setRight(int)
+   * @see #setRight(Integer)
    * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getRange_Right()
    * @model
    * @generated
    */
-  int getRight();
+  Integer getRight();
 
   /**
    * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Range#getRight <em>Right</em>}' attribute.
@@ -66,6 +66,6 @@ public interface Range extends EObject
    * @see #getRight()
    * @generated
    */
-  void setRight(int value);
+  void setRight(Integer value);
 
 } // Range

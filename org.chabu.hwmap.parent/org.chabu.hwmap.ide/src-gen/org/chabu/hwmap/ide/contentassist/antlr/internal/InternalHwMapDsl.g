@@ -1432,9 +1432,9 @@ rule__Constant__Group__2__Impl
 	}
 :
 (
-	{ before(grammarAccess.getConstantAccess().getIDTerminalRuleCall_2()); }
-	RULE_ID
-	{ after(grammarAccess.getConstantAccess().getIDTerminalRuleCall_2()); }
+	{ before(grammarAccess.getConstantAccess().getNameAssignment_2()); }
+	(rule__Constant__NameAssignment_2)
+	{ after(grammarAccess.getConstantAccess().getNameAssignment_2()); }
 )
 ;
 finally {
@@ -1781,6 +1781,21 @@ rule__Constant__ValueAssignment_1
 		{ before(grammarAccess.getConstantAccess().getValueIntegerLiteralParserRuleCall_1_0()); }
 		ruleIntegerLiteral
 		{ after(grammarAccess.getConstantAccess().getValueIntegerLiteralParserRuleCall_1_0()); }
+	)
+;
+finally {
+	restoreStackSize(stackSize);
+}
+
+rule__Constant__NameAssignment_2
+	@init {
+		int stackSize = keepStackSize();
+	}
+:
+	(
+		{ before(grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0()); }
+		RULE_ID
+		{ after(grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0()); }
 	)
 ;
 finally {

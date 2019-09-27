@@ -54,12 +54,12 @@ public interface Block extends EObject
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Size</em>' attribute.
-   * @see #setSize(int)
+   * @see #setSize(Integer)
    * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getBlock_Size()
    * @model
    * @generated
    */
-  int getSize();
+  Integer getSize();
 
   /**
    * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Block#getSize <em>Size</em>}' attribute.
@@ -69,7 +69,7 @@ public interface Block extends EObject
    * @see #getSize()
    * @generated
    */
-  void setSize(int value);
+  void setSize(Integer value);
 
   /**
    * Returns the value of the '<em><b>Regs</b></em>' containment reference list.

@@ -427,13 +427,22 @@ public interface HwMapDslPackage extends EPackage
   int CONSTANT__VALUE = 0;
 
   /**
+   * The feature id for the '<em><b>Name</b></em>' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CONSTANT__NAME = 1;
+
+  /**
    * The number of structural features of the '<em>Constant</em>' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @generated
    * @ordered
    */
-  int CONSTANT_FEATURE_COUNT = 1;
+  int CONSTANT_FEATURE_COUNT = 2;
 
 
   /**
@@ -780,6 +789,17 @@ public interface HwMapDslPackage extends EPackage
   EAttribute getConstant_Value();
 
   /**
+   * Returns the meta object for the attribute '{@link org.chabu.hwmap.hwMapDsl.Constant#getName <em>Name</em>}'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return the meta object for the attribute '<em>Name</em>'.
+   * @see org.chabu.hwmap.hwMapDsl.Constant#getName()
+   * @see #getConstant()
+   * @generated
+   */
+  EAttribute getConstant_Name();
+
+  /**
    * Returns the factory that creates the instances of the model.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1075,6 +1095,14 @@ public interface HwMapDslPackage extends EPackage
      * @generated
      */
     EAttribute CONSTANT__VALUE = eINSTANCE.getConstant_Value();
+
+    /**
+     * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    EAttribute CONSTANT__NAME = eINSTANCE.getConstant_Name();
 
   }
 

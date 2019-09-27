@@ -4,8 +4,13 @@
 package org.chabu.hwmap.tests;
 
 import com.google.inject.Inject;
+import org.chabu.hwmap.hwMapDsl.Block;
 import org.chabu.hwmap.hwMapDsl.Component;
+import org.chabu.hwmap.hwMapDsl.Instantiation;
 import org.chabu.hwmap.hwMapDsl.MemoryMap;
+import org.chabu.hwmap.hwMapDsl.Output;
+import org.chabu.hwmap.hwMapDsl.Register;
+import org.chabu.hwmap.hwMapDsl.RegisterBits;
 import org.chabu.hwmap.tests.HwMapDslInjectorProvider;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -115,31 +120,45 @@ public class HwMapDslParsingTest {
       String _join = IterableExtensions.join(errors, ", ");
       _builder_1.append(_join);
       Assertions.assertTrue(_isEmpty, _builder_1.toString());
-    } catch (Throwable _e) {
-      throw Exceptions.sneakyThrow(_e);
-    }
-  }
-  
-  @Test
-  public void parseComponent() {
-    try {
-      StringConcatenation _builder = new StringConcatenation();
-      _builder.append("Component CapSim {");
-      _builder.newLine();
-      _builder.append("}");
-      _builder.newLine();
-      final MemoryMap result = this.parseHelper.parse(_builder);
-      Assertions.assertNotNull(result);
-      final EList<Resource.Diagnostic> errors = result.eResource().getErrors();
-      boolean _isEmpty = errors.isEmpty();
-      StringConcatenation _builder_1 = new StringConcatenation();
-      _builder_1.append("Unexpected errors: ");
-      String _join = IterableExtensions.join(errors, ", ");
-      _builder_1.append(_join);
-      Assertions.assertTrue(_isEmpty, _builder_1.toString());
-      Component _get = result.getComponents().get(0);
-      final Component comp = ((Component) _get);
+      Output _get = result.getOutputs().get(0);
+      final Output out = ((Output) _get);
+      Assertions.assertEquals("VHDL", out.getMode());
+      Assertions.assertEquals("../relpath", out.getPath());
+      Component _get_1 = result.getComponents().get(0);
+      final Component comp = ((Component) _get_1);
       Assertions.assertEquals("CapSim", comp.getCompName());
+      final Block reg = comp.getBlocks().get(0);
+      Assertions.assertEquals("Regs", reg.getName());
+      Assertions.assertEquals(0x20, reg.getSize());
+      final Register regControl = reg.getRegs().get(0);
+      Assertions.assertEquals("Control", regControl.getName());
+      Assertions.assertEquals(0x00, regControl.getAddr());
+      final Register regStatus = reg.getRegs().get(1);
+      Assertions.assertEquals("Status", regStatus.getName());
+      Assertions.assertEquals(0x04, regStatus.getAddr());
+      final RegisterBits bitsStatusIrq = regStatus.getBits().get(0);
+      Assertions.assertEquals(0, bitsStatusIrq.getRange().getLeft());
+      Assertions.assertEquals(null, bitsStatusIrq.getRange().getRight());
+      final RegisterBits bitsStatusCommand = regStatus.getBits().get(1);
+      Assertions.assertEquals(7, bitsStatusCommand.getRange().getLeft());
+      Assertions.assertEquals(4, bitsStatusCommand.getRange().getRight());
+      Assertions.assertEquals("Nothing", bitsStatusCommand.getConsts().get(0).getName());
+      Assertions.assertEquals(0, bitsStatusCommand.getConsts().get(0).getValue());
+      Assertions.assertEquals("Start", bitsStatusCommand.getConsts().get(1).getName());
+      Assertions.assertEquals(1, bitsStatusCommand.getConsts().get(1).getValue());
+      final Register regModVersion = reg.getRegs().get(2);
+      Assertions.assertEquals("ModVersion", regModVersion.getName());
+      Assertions.assertEquals(0x08, regModVersion.getAddr());
+      Assertions.assertEquals("Value", regModVersion.getConsts().get(0).getName());
+      Assertions.assertEquals(0x12341200, regModVersion.getConsts().get(0).getValue());
+      final Instantiation instReg = comp.getInsts().get(0);
+      Assertions.assertEquals(0x0000, instReg.getAddr());
+      Assertions.assertEquals("Regs", instReg.getType());
+      Assertions.assertEquals(null, instReg.getName());
+      final Instantiation instMem = comp.getInsts().get(1);
+      Assertions.assertEquals(0x1000, instMem.getAddr());
+      Assertions.assertEquals("TraceMem", instMem.getType());
+      Assertions.assertEquals("TraceMem_A", instMem.getName());
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);
     }

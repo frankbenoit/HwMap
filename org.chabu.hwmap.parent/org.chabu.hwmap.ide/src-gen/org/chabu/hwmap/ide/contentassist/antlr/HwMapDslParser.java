@@ -67,6 +67,7 @@ public class HwMapDslParser extends AbstractContentAssistParser {
 			builder.put(grammarAccess.getRangeAccess().getLeftAssignment_1(), "rule__Range__LeftAssignment_1");
 			builder.put(grammarAccess.getRangeAccess().getRightAssignment_2_1(), "rule__Range__RightAssignment_2_1");
 			builder.put(grammarAccess.getConstantAccess().getValueAssignment_1(), "rule__Constant__ValueAssignment_1");
+			builder.put(grammarAccess.getConstantAccess().getNameAssignment_2(), "rule__Constant__NameAssignment_2");
 		}
 	}
 	

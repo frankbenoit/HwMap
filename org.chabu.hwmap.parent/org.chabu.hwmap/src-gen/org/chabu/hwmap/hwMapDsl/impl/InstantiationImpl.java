@@ -38,7 +38,7 @@ public class InstantiationImpl extends MinimalEObjectImpl.Container implements I
    * @generated
    * @ordered
    */
-  protected static final int ADDR_EDEFAULT = 0;
+  protected static final Integer ADDR_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getAddr() <em>Addr</em>}' attribute.
@@ -48,7 +48,7 @@ public class InstantiationImpl extends MinimalEObjectImpl.Container implements I
    * @generated
    * @ordered
    */
-  protected int addr = ADDR_EDEFAULT;
+  protected Integer addr = ADDR_EDEFAULT;
 
   /**
    * The default value of the '{@link #getType() <em>Type</em>}' attribute.
@@ -117,7 +117,7 @@ public class InstantiationImpl extends MinimalEObjectImpl.Container implements I
    * @generated
    */
   @Override
-  public int getAddr()
+  public Integer getAddr()
   {
     return addr;
   }
@@ -128,9 +128,9 @@ public class InstantiationImpl extends MinimalEObjectImpl.Container implements I
    * @generated
    */
   @Override
-  public void setAddr(int newAddr)
+  public void setAddr(Integer newAddr)
   {
-    int oldAddr = addr;
+    Integer oldAddr = addr;
     addr = newAddr;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.INSTANTIATION__ADDR, oldAddr, addr));
@@ -263,7 +263,7 @@ public class InstantiationImpl extends MinimalEObjectImpl.Container implements I
     switch (featureID)
     {
       case HwMapDslPackage.INSTANTIATION__ADDR:
-        return addr != ADDR_EDEFAULT;
+        return ADDR_EDEFAULT == null ? addr != null : !ADDR_EDEFAULT.equals(addr);
       case HwMapDslPackage.INSTANTIATION__TYPE:
         return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
       case HwMapDslPackage.INSTANTIATION__NAME:

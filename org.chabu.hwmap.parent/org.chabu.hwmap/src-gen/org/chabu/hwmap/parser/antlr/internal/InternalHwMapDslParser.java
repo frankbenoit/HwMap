@@ -1685,12 +1685,12 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
 
 
     // $ANTLR start "ruleConstant"
-    // InternalHwMapDsl.g:722:1: ruleConstant returns [EObject current=null] : (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) this_ID_2= RULE_ID ) ;
+    // InternalHwMapDsl.g:722:1: ruleConstant returns [EObject current=null] : (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) ( (lv_name_2_0= RULE_ID ) ) ) ;
     public final EObject ruleConstant() throws RecognitionException {
         EObject current = null;
 
         Token otherlv_0=null;
-        Token this_ID_2=null;
+        Token lv_name_2_0=null;
         AntlrDatatypeRuleToken lv_value_1_0 = null;
 
 
@@ -1698,11 +1698,11 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
         	enterRule();
 
         try {
-            // InternalHwMapDsl.g:728:2: ( (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) this_ID_2= RULE_ID ) )
-            // InternalHwMapDsl.g:729:2: (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) this_ID_2= RULE_ID )
+            // InternalHwMapDsl.g:728:2: ( (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) ( (lv_name_2_0= RULE_ID ) ) ) )
+            // InternalHwMapDsl.g:729:2: (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) ( (lv_name_2_0= RULE_ID ) ) )
             {
-            // InternalHwMapDsl.g:729:2: (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) this_ID_2= RULE_ID )
-            // InternalHwMapDsl.g:730:3: otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) this_ID_2= RULE_ID
+            // InternalHwMapDsl.g:729:2: (otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) ( (lv_name_2_0= RULE_ID ) ) )
+            // InternalHwMapDsl.g:730:3: otherlv_0= 'Constant' ( (lv_value_1_0= ruleIntegerLiteral ) ) ( (lv_name_2_0= RULE_ID ) )
             {
             otherlv_0=(Token)match(input,22,FOLLOW_10); 
 
@@ -1739,10 +1739,32 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
 
             }
 
-            this_ID_2=(Token)match(input,RULE_ID,FOLLOW_2); 
+            // InternalHwMapDsl.g:753:3: ( (lv_name_2_0= RULE_ID ) )
+            // InternalHwMapDsl.g:754:4: (lv_name_2_0= RULE_ID )
+            {
+            // InternalHwMapDsl.g:754:4: (lv_name_2_0= RULE_ID )
+            // InternalHwMapDsl.g:755:5: lv_name_2_0= RULE_ID
+            {
+            lv_name_2_0=(Token)match(input,RULE_ID,FOLLOW_2); 
 
-            			newLeafNode(this_ID_2, grammarAccess.getConstantAccess().getIDTerminalRuleCall_2());
-            		
+            					newLeafNode(lv_name_2_0, grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0());
+            				
+
+            					if (current==null) {
+            						current = createModelElement(grammarAccess.getConstantRule());
+            					}
+            					setWithLastConsumed(
+            						current,
+            						"name",
+            						lv_name_2_0,
+            						"org.chabu.hwmap.HwMapDsl.ID");
+            				
+
+            }
+
+
+            }
+
 
             }
 
@@ -1766,7 +1788,7 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
 
 
     // $ANTLR start "entryRuleIntegerLiteral"
-    // InternalHwMapDsl.g:761:1: entryRuleIntegerLiteral returns [String current=null] : iv_ruleIntegerLiteral= ruleIntegerLiteral EOF ;
+    // InternalHwMapDsl.g:775:1: entryRuleIntegerLiteral returns [String current=null] : iv_ruleIntegerLiteral= ruleIntegerLiteral EOF ;
     public final String entryRuleIntegerLiteral() throws RecognitionException {
         String current = null;
 
@@ -1774,8 +1796,8 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
 
 
         try {
-            // InternalHwMapDsl.g:761:54: (iv_ruleIntegerLiteral= ruleIntegerLiteral EOF )
-            // InternalHwMapDsl.g:762:2: iv_ruleIntegerLiteral= ruleIntegerLiteral EOF
+            // InternalHwMapDsl.g:775:54: (iv_ruleIntegerLiteral= ruleIntegerLiteral EOF )
+            // InternalHwMapDsl.g:776:2: iv_ruleIntegerLiteral= ruleIntegerLiteral EOF
             {
              newCompositeNode(grammarAccess.getIntegerLiteralRule()); 
             pushFollow(FOLLOW_1);
@@ -1802,7 +1824,7 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
 
 
     // $ANTLR start "ruleIntegerLiteral"
-    // InternalHwMapDsl.g:768:1: ruleIntegerLiteral returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()] : (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX ) ;
+    // InternalHwMapDsl.g:782:1: ruleIntegerLiteral returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()] : (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX ) ;
     public final AntlrDatatypeRuleToken ruleIntegerLiteral() throws RecognitionException {
         AntlrDatatypeRuleToken current = new AntlrDatatypeRuleToken();
 
@@ -1813,10 +1835,10 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
         	enterRule();
 
         try {
-            // InternalHwMapDsl.g:774:2: ( (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX ) )
-            // InternalHwMapDsl.g:775:2: (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX )
+            // InternalHwMapDsl.g:788:2: ( (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX ) )
+            // InternalHwMapDsl.g:789:2: (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX )
             {
-            // InternalHwMapDsl.g:775:2: (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX )
+            // InternalHwMapDsl.g:789:2: (this_INT_DEC_0= RULE_INT_DEC | this_INT_HEX_1= RULE_INT_HEX )
             int alt10=2;
             int LA10_0 = input.LA(1);
 
@@ -1834,7 +1856,7 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
             }
             switch (alt10) {
                 case 1 :
-                    // InternalHwMapDsl.g:776:3: this_INT_DEC_0= RULE_INT_DEC
+                    // InternalHwMapDsl.g:790:3: this_INT_DEC_0= RULE_INT_DEC
                     {
                     this_INT_DEC_0=(Token)match(input,RULE_INT_DEC,FOLLOW_2); 
 
@@ -1847,7 +1869,7 @@ public class InternalHwMapDslParser extends AbstractInternalAntlrParser {
                     }
                     break;
                 case 2 :
-                    // InternalHwMapDsl.g:784:3: this_INT_HEX_1= RULE_INT_HEX
+                    // InternalHwMapDsl.g:798:3: this_INT_HEX_1= RULE_INT_HEX
                     {
                     this_INT_HEX_1=(Token)match(input,RULE_INT_HEX,FOLLOW_2); 
 

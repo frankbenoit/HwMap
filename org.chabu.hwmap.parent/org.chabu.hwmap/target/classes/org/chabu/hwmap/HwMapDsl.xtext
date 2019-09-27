@@ -42,9 +42,9 @@ RegisterBits: range=Range name=ID consts+=Constant*;
 
 Range: '[' left=IntegerLiteral (OP_2DOT right=IntegerLiteral)? ']';
 
-Constant: 'Constant' value=IntegerLiteral ID;
+Constant: 'Constant' value=IntegerLiteral name=ID;
 
-IntegerLiteral returns ecore::EInt: INT_DEC | INT_HEX;
+IntegerLiteral returns ecore::EIntegerObject: INT_DEC | INT_HEX;
 
 terminal INT_DEC: '-'? (('1'..'9')('0'..'9')*) | '0';
 terminal INT_HEX: '0x' ('a'..'f'|'A'..'F'|'0'..'9')+; 

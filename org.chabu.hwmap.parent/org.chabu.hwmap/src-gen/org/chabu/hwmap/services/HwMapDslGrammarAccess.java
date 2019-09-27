@@ -375,13 +375,14 @@ public class HwMapDslGrammarAccess extends AbstractGrammarElementFinder {
 		private final Keyword cConstantKeyword_0 = (Keyword)cGroup.eContents().get(0);
 		private final Assignment cValueAssignment_1 = (Assignment)cGroup.eContents().get(1);
 		private final RuleCall cValueIntegerLiteralParserRuleCall_1_0 = (RuleCall)cValueAssignment_1.eContents().get(0);
-		private final RuleCall cIDTerminalRuleCall_2 = (RuleCall)cGroup.eContents().get(2);
+		private final Assignment cNameAssignment_2 = (Assignment)cGroup.eContents().get(2);
+		private final RuleCall cNameIDTerminalRuleCall_2_0 = (RuleCall)cNameAssignment_2.eContents().get(0);
 		
 		//Constant:
-		//	'Constant' value=IntegerLiteral ID;
+		//	'Constant' value=IntegerLiteral name=ID;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//'Constant' value=IntegerLiteral ID
+		//'Constant' value=IntegerLiteral name=ID
 		public Group getGroup() { return cGroup; }
 		
 		//'Constant'
@@ -393,8 +394,11 @@ public class HwMapDslGrammarAccess extends AbstractGrammarElementFinder {
 		//IntegerLiteral
 		public RuleCall getValueIntegerLiteralParserRuleCall_1_0() { return cValueIntegerLiteralParserRuleCall_1_0; }
 		
+		//name=ID
+		public Assignment getNameAssignment_2() { return cNameAssignment_2; }
+		
 		//ID
-		public RuleCall getIDTerminalRuleCall_2() { return cIDTerminalRuleCall_2; }
+		public RuleCall getNameIDTerminalRuleCall_2_0() { return cNameIDTerminalRuleCall_2_0; }
 	}
 	public class IntegerLiteralElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.chabu.hwmap.HwMapDsl.IntegerLiteral");
@@ -402,7 +406,7 @@ public class HwMapDslGrammarAccess extends AbstractGrammarElementFinder {
 		private final RuleCall cINT_DECTerminalRuleCall_0 = (RuleCall)cAlternatives.eContents().get(0);
 		private final RuleCall cINT_HEXTerminalRuleCall_1 = (RuleCall)cAlternatives.eContents().get(1);
 		
-		//IntegerLiteral ecore::EInt:
+		//IntegerLiteral ecore::EIntegerObject:
 		//	INT_DEC | INT_HEX;
 		@Override public ParserRule getRule() { return rule; }
 		
@@ -574,7 +578,7 @@ public class HwMapDslGrammarAccess extends AbstractGrammarElementFinder {
 	}
 	
 	//Constant:
-	//	'Constant' value=IntegerLiteral ID;
+	//	'Constant' value=IntegerLiteral name=ID;
 	public ConstantElements getConstantAccess() {
 		return pConstant;
 	}
@@ -583,7 +587,7 @@ public class HwMapDslGrammarAccess extends AbstractGrammarElementFinder {
 		return getConstantAccess().getRule();
 	}
 	
-	//IntegerLiteral ecore::EInt:
+	//IntegerLiteral ecore::EIntegerObject:
 	//	INT_DEC | INT_HEX;
 	public IntegerLiteralElements getIntegerLiteralAccess() {
 		return pIntegerLiteral;

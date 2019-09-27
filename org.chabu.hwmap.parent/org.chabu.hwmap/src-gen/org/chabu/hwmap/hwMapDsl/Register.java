@@ -33,12 +33,12 @@ public interface Register extends EObject
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Addr</em>' attribute.
-   * @see #setAddr(int)
+   * @see #setAddr(Integer)
    * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getRegister_Addr()
    * @model
    * @generated
    */
-  int getAddr();
+  Integer getAddr();
 
   /**
    * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Register#getAddr <em>Addr</em>}' attribute.
@@ -48,7 +48,7 @@ public interface Register extends EObject
    * @see #getAddr()
    * @generated
    */
-  void setAddr(int value);
+  void setAddr(Integer value);
 
   /**
    * Returns the value of the '<em><b>Name</b></em>' attribute.

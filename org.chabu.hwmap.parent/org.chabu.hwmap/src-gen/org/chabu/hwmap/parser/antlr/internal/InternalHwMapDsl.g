@@ -750,10 +750,24 @@ ruleConstant returns [EObject current=null]
 				}
 			)
 		)
-		this_ID_2=RULE_ID
-		{
-			newLeafNode(this_ID_2, grammarAccess.getConstantAccess().getIDTerminalRuleCall_2());
-		}
+		(
+			(
+				lv_name_2_0=RULE_ID
+				{
+					newLeafNode(lv_name_2_0, grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0());
+				}
+				{
+					if ($current==null) {
+						$current = createModelElement(grammarAccess.getConstantRule());
+					}
+					setWithLastConsumed(
+						$current,
+						"name",
+						lv_name_2_0,
+						"org.chabu.hwmap.HwMapDsl.ID");
+				}
+			)
+		)
 	)
 ;
 

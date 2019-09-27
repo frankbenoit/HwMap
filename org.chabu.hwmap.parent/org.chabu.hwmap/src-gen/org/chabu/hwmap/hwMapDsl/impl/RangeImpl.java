@@ -37,7 +37,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    * @ordered
    */
-  protected static final int LEFT_EDEFAULT = 0;
+  protected static final Integer LEFT_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getLeft() <em>Left</em>}' attribute.
@@ -47,7 +47,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    * @ordered
    */
-  protected int left = LEFT_EDEFAULT;
+  protected Integer left = LEFT_EDEFAULT;
 
   /**
    * The default value of the '{@link #getRight() <em>Right</em>}' attribute.
@@ -57,7 +57,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    * @ordered
    */
-  protected static final int RIGHT_EDEFAULT = 0;
+  protected static final Integer RIGHT_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getRight() <em>Right</em>}' attribute.
@@ -67,7 +67,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    * @ordered
    */
-  protected int right = RIGHT_EDEFAULT;
+  protected Integer right = RIGHT_EDEFAULT;
 
   /**
    * <!-- begin-user-doc -->
@@ -96,7 +96,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    */
   @Override
-  public int getLeft()
+  public Integer getLeft()
   {
     return left;
   }
@@ -107,9 +107,9 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    */
   @Override
-  public void setLeft(int newLeft)
+  public void setLeft(Integer newLeft)
   {
-    int oldLeft = left;
+    Integer oldLeft = left;
     left = newLeft;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.RANGE__LEFT, oldLeft, left));
@@ -121,7 +121,7 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    */
   @Override
-  public int getRight()
+  public Integer getRight()
   {
     return right;
   }
@@ -132,9 +132,9 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
    * @generated
    */
   @Override
-  public void setRight(int newRight)
+  public void setRight(Integer newRight)
   {
-    int oldRight = right;
+    Integer oldRight = right;
     right = newRight;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.RANGE__RIGHT, oldRight, right));
@@ -209,9 +209,9 @@ public class RangeImpl extends MinimalEObjectImpl.Container implements Range
     switch (featureID)
     {
       case HwMapDslPackage.RANGE__LEFT:
-        return left != LEFT_EDEFAULT;
+        return LEFT_EDEFAULT == null ? left != null : !LEFT_EDEFAULT.equals(left);
       case HwMapDslPackage.RANGE__RIGHT:
-        return right != RIGHT_EDEFAULT;
+        return RIGHT_EDEFAULT == null ? right != null : !RIGHT_EDEFAULT.equals(right);
     }
     return super.eIsSet(featureID);
   }

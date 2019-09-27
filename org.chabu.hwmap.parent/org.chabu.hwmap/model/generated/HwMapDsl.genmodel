@@ -46,6 +46,7 @@
     </genClasses>
     <genClasses ecoreClass="HwMapDsl.ecore#//Constant">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Constant/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Constant/name"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

@@ -101,15 +101,18 @@ public class HwMapDslSemanticSequencer extends AbstractDelegatingSemanticSequenc
 	 *     Constant returns Constant
 	 *
 	 * Constraint:
-	 *     value=IntegerLiteral
+	 *     (value=IntegerLiteral name=ID)
 	 */
 	protected void sequence_Constant(ISerializationContext context, Constant semanticObject) {
 		if (errorAcceptor != null) {
 			if (transientValues.isValueTransient(semanticObject, HwMapDslPackage.Literals.CONSTANT__VALUE) == ValueTransient.YES)
 				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, HwMapDslPackage.Literals.CONSTANT__VALUE));
+			if (transientValues.isValueTransient(semanticObject, HwMapDslPackage.Literals.CONSTANT__NAME) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, HwMapDslPackage.Literals.CONSTANT__NAME));
 		}
 		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
 		feeder.accept(grammarAccess.getConstantAccess().getValueIntegerLiteralParserRuleCall_1_0(), semanticObject.getValue());
+		feeder.accept(grammarAccess.getConstantAccess().getNameIDTerminalRuleCall_2_0(), semanticObject.getName());
 		feeder.finish();
 	}
 	

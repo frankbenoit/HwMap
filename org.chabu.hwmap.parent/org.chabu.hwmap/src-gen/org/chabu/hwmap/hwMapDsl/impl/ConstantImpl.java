@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * </p>
  * <ul>
  *   <li>{@link org.chabu.hwmap.hwMapDsl.impl.ConstantImpl#getValue <em>Value</em>}</li>
+ *   <li>{@link org.chabu.hwmap.hwMapDsl.impl.ConstantImpl#getName <em>Name</em>}</li>
  * </ul>
  *
  * @generated
@@ -36,7 +37,7 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
    * @generated
    * @ordered
    */
-  protected static final int VALUE_EDEFAULT = 0;
+  protected static final Integer VALUE_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getValue() <em>Value</em>}' attribute.
@@ -46,7 +47,27 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
    * @generated
    * @ordered
    */
-  protected int value = VALUE_EDEFAULT;
+  protected Integer value = VALUE_EDEFAULT;
+
+  /**
+   * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getName()
+   * @generated
+   * @ordered
+   */
+  protected static final String NAME_EDEFAULT = null;
+
+  /**
+   * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getName()
+   * @generated
+   * @ordered
+   */
+  protected String name = NAME_EDEFAULT;
 
   /**
    * <!-- begin-user-doc -->
@@ -75,7 +96,7 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
    * @generated
    */
   @Override
-  public int getValue()
+  public Integer getValue()
   {
     return value;
   }
@@ -86,12 +107,37 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
    * @generated
    */
   @Override
-  public void setValue(int newValue)
+  public void setValue(Integer newValue)
   {
-    int oldValue = value;
+    Integer oldValue = value;
     value = newValue;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.CONSTANT__VALUE, oldValue, value));
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public String getName()
+  {
+    return name;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public void setName(String newName)
+  {
+    String oldName = name;
+    name = newName;
+    if (eNotificationRequired())
+      eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.CONSTANT__NAME, oldName, name));
   }
 
   /**
@@ -106,6 +152,8 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
     {
       case HwMapDslPackage.CONSTANT__VALUE:
         return getValue();
+      case HwMapDslPackage.CONSTANT__NAME:
+        return getName();
     }
     return super.eGet(featureID, resolve, coreType);
   }
@@ -122,6 +170,9 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
     {
       case HwMapDslPackage.CONSTANT__VALUE:
         setValue((Integer)newValue);
+        return;
+      case HwMapDslPackage.CONSTANT__NAME:
+        setName((String)newValue);
         return;
     }
     super.eSet(featureID, newValue);
@@ -140,6 +191,9 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
       case HwMapDslPackage.CONSTANT__VALUE:
         setValue(VALUE_EDEFAULT);
         return;
+      case HwMapDslPackage.CONSTANT__NAME:
+        setName(NAME_EDEFAULT);
+        return;
     }
     super.eUnset(featureID);
   }
@@ -155,7 +209,9 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
     switch (featureID)
     {
       case HwMapDslPackage.CONSTANT__VALUE:
-        return value != VALUE_EDEFAULT;
+        return VALUE_EDEFAULT == null ? value != null : !VALUE_EDEFAULT.equals(value);
+      case HwMapDslPackage.CONSTANT__NAME:
+        return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
     }
     return super.eIsSet(featureID);
   }
@@ -173,6 +229,8 @@ public class ConstantImpl extends MinimalEObjectImpl.Container implements Consta
     StringBuilder result = new StringBuilder(super.toString());
     result.append(" (value: ");
     result.append(value);
+    result.append(", name: ");
+    result.append(name);
     result.append(')');
     return result.toString();
   }

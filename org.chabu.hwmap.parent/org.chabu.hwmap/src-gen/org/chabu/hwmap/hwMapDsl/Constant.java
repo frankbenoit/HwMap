@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link org.chabu.hwmap.hwMapDsl.Constant#getValue <em>Value</em>}</li>
+ *   <li>{@link org.chabu.hwmap.hwMapDsl.Constant#getName <em>Name</em>}</li>
  * </ul>
  *
  * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getConstant()
@@ -28,12 +29,12 @@ public interface Constant extends EObject
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Value</em>' attribute.
-   * @see #setValue(int)
+   * @see #setValue(Integer)
    * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getConstant_Value()
    * @model
    * @generated
    */
-  int getValue();
+  Integer getValue();
 
   /**
    * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Constant#getValue <em>Value</em>}' attribute.
@@ -43,6 +44,28 @@ public interface Constant extends EObject
    * @see #getValue()
    * @generated
    */
-  void setValue(int value);
+  void setValue(Integer value);
+
+  /**
+   * Returns the value of the '<em><b>Name</b></em>' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return the value of the '<em>Name</em>' attribute.
+   * @see #setName(String)
+   * @see org.chabu.hwmap.hwMapDsl.HwMapDslPackage#getConstant_Name()
+   * @model
+   * @generated
+   */
+  String getName();
+
+  /**
+   * Sets the value of the '{@link org.chabu.hwmap.hwMapDsl.Constant#getName <em>Name</em>}' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @param value the new value of the '<em>Name</em>' attribute.
+   * @see #getName()
+   * @generated
+   */
+  void setName(String value);
 
 } // Constant

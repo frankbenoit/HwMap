@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings("all")
 public class InternalHwMapDslLexer extends Lexer {
-    public static final int RULE_STRING=8;
+    public static final int RULE_STRING=7;
     public static final int RULE_SL_COMMENT=10;
     public static final int T__19=19;
     public static final int T__15=15;
@@ -24,7 +24,7 @@ public class InternalHwMapDslLexer extends Lexer {
     public static final int T__14=14;
     public static final int EOF=-1;
     public static final int RULE_INT_DEC=4;
-    public static final int RULE_ID=7;
+    public static final int RULE_ID=8;
     public static final int RULE_WS=11;
     public static final int RULE_ANY_OTHER=12;
     public static final int T__22=22;
@@ -256,10 +256,10 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_INT_DEC;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1790:14: ( ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' ) )
-            // InternalHwMapDsl.g:1790:16: ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' )
+            // InternalHwMapDsl.g:1805:14: ( ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' ) )
+            // InternalHwMapDsl.g:1805:16: ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' )
             {
-            // InternalHwMapDsl.g:1790:16: ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' )
+            // InternalHwMapDsl.g:1805:16: ( ( '-' )? '1' .. '9' ( '0' .. '9' )* | '0' )
             int alt3=2;
             int LA3_0 = input.LA(1);
 
@@ -277,9 +277,9 @@ public class InternalHwMapDslLexer extends Lexer {
             }
             switch (alt3) {
                 case 1 :
-                    // InternalHwMapDsl.g:1790:17: ( '-' )? '1' .. '9' ( '0' .. '9' )*
+                    // InternalHwMapDsl.g:1805:17: ( '-' )? '1' .. '9' ( '0' .. '9' )*
                     {
-                    // InternalHwMapDsl.g:1790:17: ( '-' )?
+                    // InternalHwMapDsl.g:1805:17: ( '-' )?
                     int alt1=2;
                     int LA1_0 = input.LA(1);
 
@@ -288,7 +288,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     }
                     switch (alt1) {
                         case 1 :
-                            // InternalHwMapDsl.g:1790:17: '-'
+                            // InternalHwMapDsl.g:1805:17: '-'
                             {
                             match('-'); 
 
@@ -298,7 +298,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     }
 
                     matchRange('1','9'); 
-                    // InternalHwMapDsl.g:1790:31: ( '0' .. '9' )*
+                    // InternalHwMapDsl.g:1805:31: ( '0' .. '9' )*
                     loop2:
                     do {
                         int alt2=2;
@@ -311,7 +311,7 @@ public class InternalHwMapDslLexer extends Lexer {
 
                         switch (alt2) {
                     	case 1 :
-                    	    // InternalHwMapDsl.g:1790:32: '0' .. '9'
+                    	    // InternalHwMapDsl.g:1805:32: '0' .. '9'
                     	    {
                     	    matchRange('0','9'); 
 
@@ -327,7 +327,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // InternalHwMapDsl.g:1790:43: '0'
+                    // InternalHwMapDsl.g:1805:43: '0'
                     {
                     match('0'); 
 
@@ -352,12 +352,12 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_INT_HEX;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1792:14: ( '0x' ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+ )
-            // InternalHwMapDsl.g:1792:16: '0x' ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+
+            // InternalHwMapDsl.g:1807:14: ( '0x' ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+ )
+            // InternalHwMapDsl.g:1807:16: '0x' ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+
             {
             match("0x"); 
 
-            // InternalHwMapDsl.g:1792:21: ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+
+            // InternalHwMapDsl.g:1807:21: ( 'a' .. 'f' | 'A' .. 'F' | '0' .. '9' )+
             int cnt4=0;
             loop4:
             do {
@@ -411,8 +411,8 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_OP_2DOT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1794:14: ( '..' )
-            // InternalHwMapDsl.g:1794:16: '..'
+            // InternalHwMapDsl.g:1809:14: ( '..' )
+            // InternalHwMapDsl.g:1809:16: '..'
             {
             match(".."); 
 
@@ -432,10 +432,10 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_ID;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1796:9: ( ( '^' )? ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )* )
-            // InternalHwMapDsl.g:1796:11: ( '^' )? ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )*
+            // InternalHwMapDsl.g:1811:9: ( ( '^' )? ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )* )
+            // InternalHwMapDsl.g:1811:11: ( '^' )? ( 'a' .. 'z' | 'A' .. 'Z' | '_' ) ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )*
             {
-            // InternalHwMapDsl.g:1796:11: ( '^' )?
+            // InternalHwMapDsl.g:1811:11: ( '^' )?
             int alt5=2;
             int LA5_0 = input.LA(1);
 
@@ -444,7 +444,7 @@ public class InternalHwMapDslLexer extends Lexer {
             }
             switch (alt5) {
                 case 1 :
-                    // InternalHwMapDsl.g:1796:11: '^'
+                    // InternalHwMapDsl.g:1811:11: '^'
                     {
                     match('^'); 
 
@@ -462,7 +462,7 @@ public class InternalHwMapDslLexer extends Lexer {
                 recover(mse);
                 throw mse;}
 
-            // InternalHwMapDsl.g:1796:40: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )*
+            // InternalHwMapDsl.g:1811:40: ( 'a' .. 'z' | 'A' .. 'Z' | '_' | '0' .. '9' )*
             loop6:
             do {
                 int alt6=2;
@@ -511,10 +511,10 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_STRING;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1798:13: ( ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' ) )
-            // InternalHwMapDsl.g:1798:15: ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' )
+            // InternalHwMapDsl.g:1813:13: ( ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' ) )
+            // InternalHwMapDsl.g:1813:15: ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' )
             {
-            // InternalHwMapDsl.g:1798:15: ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' )
+            // InternalHwMapDsl.g:1813:15: ( '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"' | '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\'' )
             int alt9=2;
             int LA9_0 = input.LA(1);
 
@@ -532,10 +532,10 @@ public class InternalHwMapDslLexer extends Lexer {
             }
             switch (alt9) {
                 case 1 :
-                    // InternalHwMapDsl.g:1798:16: '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"'
+                    // InternalHwMapDsl.g:1813:16: '\"' ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )* '\"'
                     {
                     match('\"'); 
-                    // InternalHwMapDsl.g:1798:20: ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )*
+                    // InternalHwMapDsl.g:1813:20: ( '\\\\' . | ~ ( ( '\\\\' | '\"' ) ) )*
                     loop7:
                     do {
                         int alt7=3;
@@ -551,7 +551,7 @@ public class InternalHwMapDslLexer extends Lexer {
 
                         switch (alt7) {
                     	case 1 :
-                    	    // InternalHwMapDsl.g:1798:21: '\\\\' .
+                    	    // InternalHwMapDsl.g:1813:21: '\\\\' .
                     	    {
                     	    match('\\'); 
                     	    matchAny(); 
@@ -559,7 +559,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     	    }
                     	    break;
                     	case 2 :
-                    	    // InternalHwMapDsl.g:1798:28: ~ ( ( '\\\\' | '\"' ) )
+                    	    // InternalHwMapDsl.g:1813:28: ~ ( ( '\\\\' | '\"' ) )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='[')||(input.LA(1)>=']' && input.LA(1)<='\uFFFF') ) {
                     	        input.consume();
@@ -584,10 +584,10 @@ public class InternalHwMapDslLexer extends Lexer {
                     }
                     break;
                 case 2 :
-                    // InternalHwMapDsl.g:1798:48: '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\''
+                    // InternalHwMapDsl.g:1813:48: '\\'' ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )* '\\''
                     {
                     match('\''); 
-                    // InternalHwMapDsl.g:1798:53: ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )*
+                    // InternalHwMapDsl.g:1813:53: ( '\\\\' . | ~ ( ( '\\\\' | '\\'' ) ) )*
                     loop8:
                     do {
                         int alt8=3;
@@ -603,7 +603,7 @@ public class InternalHwMapDslLexer extends Lexer {
 
                         switch (alt8) {
                     	case 1 :
-                    	    // InternalHwMapDsl.g:1798:54: '\\\\' .
+                    	    // InternalHwMapDsl.g:1813:54: '\\\\' .
                     	    {
                     	    match('\\'); 
                     	    matchAny(); 
@@ -611,7 +611,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     	    }
                     	    break;
                     	case 2 :
-                    	    // InternalHwMapDsl.g:1798:61: ~ ( ( '\\\\' | '\\'' ) )
+                    	    // InternalHwMapDsl.g:1813:61: ~ ( ( '\\\\' | '\\'' ) )
                     	    {
                     	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='&')||(input.LA(1)>='(' && input.LA(1)<='[')||(input.LA(1)>=']' && input.LA(1)<='\uFFFF') ) {
                     	        input.consume();
@@ -654,12 +654,12 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_ML_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1800:17: ( '/*' ( options {greedy=false; } : . )* '*/' )
-            // InternalHwMapDsl.g:1800:19: '/*' ( options {greedy=false; } : . )* '*/'
+            // InternalHwMapDsl.g:1815:17: ( '/*' ( options {greedy=false; } : . )* '*/' )
+            // InternalHwMapDsl.g:1815:19: '/*' ( options {greedy=false; } : . )* '*/'
             {
             match("/*"); 
 
-            // InternalHwMapDsl.g:1800:24: ( options {greedy=false; } : . )*
+            // InternalHwMapDsl.g:1815:24: ( options {greedy=false; } : . )*
             loop10:
             do {
                 int alt10=2;
@@ -684,7 +684,7 @@ public class InternalHwMapDslLexer extends Lexer {
 
                 switch (alt10) {
             	case 1 :
-            	    // InternalHwMapDsl.g:1800:52: .
+            	    // InternalHwMapDsl.g:1815:52: .
             	    {
             	    matchAny(); 
 
@@ -714,12 +714,12 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_SL_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1802:17: ( '//' (~ ( ( '\\n' | '\\r' ) ) )* ( ( '\\r' )? '\\n' )? )
-            // InternalHwMapDsl.g:1802:19: '//' (~ ( ( '\\n' | '\\r' ) ) )* ( ( '\\r' )? '\\n' )?
+            // InternalHwMapDsl.g:1817:17: ( '//' (~ ( ( '\\n' | '\\r' ) ) )* ( ( '\\r' )? '\\n' )? )
+            // InternalHwMapDsl.g:1817:19: '//' (~ ( ( '\\n' | '\\r' ) ) )* ( ( '\\r' )? '\\n' )?
             {
             match("//"); 
 
-            // InternalHwMapDsl.g:1802:24: (~ ( ( '\\n' | '\\r' ) ) )*
+            // InternalHwMapDsl.g:1817:24: (~ ( ( '\\n' | '\\r' ) ) )*
             loop11:
             do {
                 int alt11=2;
@@ -732,7 +732,7 @@ public class InternalHwMapDslLexer extends Lexer {
 
                 switch (alt11) {
             	case 1 :
-            	    // InternalHwMapDsl.g:1802:24: ~ ( ( '\\n' | '\\r' ) )
+            	    // InternalHwMapDsl.g:1817:24: ~ ( ( '\\n' | '\\r' ) )
             	    {
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='\uFFFF') ) {
             	        input.consume();
@@ -752,7 +752,7 @@ public class InternalHwMapDslLexer extends Lexer {
                 }
             } while (true);
 
-            // InternalHwMapDsl.g:1802:40: ( ( '\\r' )? '\\n' )?
+            // InternalHwMapDsl.g:1817:40: ( ( '\\r' )? '\\n' )?
             int alt13=2;
             int LA13_0 = input.LA(1);
 
@@ -761,9 +761,9 @@ public class InternalHwMapDslLexer extends Lexer {
             }
             switch (alt13) {
                 case 1 :
-                    // InternalHwMapDsl.g:1802:41: ( '\\r' )? '\\n'
+                    // InternalHwMapDsl.g:1817:41: ( '\\r' )? '\\n'
                     {
-                    // InternalHwMapDsl.g:1802:41: ( '\\r' )?
+                    // InternalHwMapDsl.g:1817:41: ( '\\r' )?
                     int alt12=2;
                     int LA12_0 = input.LA(1);
 
@@ -772,7 +772,7 @@ public class InternalHwMapDslLexer extends Lexer {
                     }
                     switch (alt12) {
                         case 1 :
-                            // InternalHwMapDsl.g:1802:41: '\\r'
+                            // InternalHwMapDsl.g:1817:41: '\\r'
                             {
                             match('\r'); 
 
@@ -804,10 +804,10 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1804:9: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
-            // InternalHwMapDsl.g:1804:11: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // InternalHwMapDsl.g:1819:9: ( ( ' ' | '\\t' | '\\r' | '\\n' )+ )
+            // InternalHwMapDsl.g:1819:11: ( ' ' | '\\t' | '\\r' | '\\n' )+
             {
-            // InternalHwMapDsl.g:1804:11: ( ' ' | '\\t' | '\\r' | '\\n' )+
+            // InternalHwMapDsl.g:1819:11: ( ' ' | '\\t' | '\\r' | '\\n' )+
             int cnt14=0;
             loop14:
             do {
@@ -861,8 +861,8 @@ public class InternalHwMapDslLexer extends Lexer {
         try {
             int _type = RULE_ANY_OTHER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // InternalHwMapDsl.g:1806:16: ( . )
-            // InternalHwMapDsl.g:1806:18: .
+            // InternalHwMapDsl.g:1821:16: ( . )
+            // InternalHwMapDsl.g:1821:18: .
             {
             matchAny(); 
 

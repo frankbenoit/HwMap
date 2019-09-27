@@ -68,7 +68,7 @@ public class BlockImpl extends MinimalEObjectImpl.Container implements Block
    * @generated
    * @ordered
    */
-  protected static final int SIZE_EDEFAULT = 0;
+  protected static final Integer SIZE_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getSize() <em>Size</em>}' attribute.
@@ -78,7 +78,7 @@ public class BlockImpl extends MinimalEObjectImpl.Container implements Block
    * @generated
    * @ordered
    */
-  protected int size = SIZE_EDEFAULT;
+  protected Integer size = SIZE_EDEFAULT;
 
   /**
    * The cached value of the '{@link #getRegs() <em>Regs</em>}' containment reference list.
@@ -142,7 +142,7 @@ public class BlockImpl extends MinimalEObjectImpl.Container implements Block
    * @generated
    */
   @Override
-  public int getSize()
+  public Integer getSize()
   {
     return size;
   }
@@ -153,9 +153,9 @@ public class BlockImpl extends MinimalEObjectImpl.Container implements Block
    * @generated
    */
   @Override
-  public void setSize(int newSize)
+  public void setSize(Integer newSize)
   {
-    int oldSize = size;
+    Integer oldSize = size;
     size = newSize;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.BLOCK__SIZE, oldSize, size));
@@ -273,7 +273,7 @@ public class BlockImpl extends MinimalEObjectImpl.Container implements Block
       case HwMapDslPackage.BLOCK__NAME:
         return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
       case HwMapDslPackage.BLOCK__SIZE:
-        return size != SIZE_EDEFAULT;
+        return SIZE_EDEFAULT == null ? size != null : !SIZE_EDEFAULT.equals(size);
       case HwMapDslPackage.BLOCK__REGS:
         return regs != null && !regs.isEmpty();
     }

@@ -50,7 +50,7 @@ public class RegisterImpl extends MinimalEObjectImpl.Container implements Regist
    * @generated
    * @ordered
    */
-  protected static final int ADDR_EDEFAULT = 0;
+  protected static final Integer ADDR_EDEFAULT = null;
 
   /**
    * The cached value of the '{@link #getAddr() <em>Addr</em>}' attribute.
@@ -60,7 +60,7 @@ public class RegisterImpl extends MinimalEObjectImpl.Container implements Regist
    * @generated
    * @ordered
    */
-  protected int addr = ADDR_EDEFAULT;
+  protected Integer addr = ADDR_EDEFAULT;
 
   /**
    * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -129,7 +129,7 @@ public class RegisterImpl extends MinimalEObjectImpl.Container implements Regist
    * @generated
    */
   @Override
-  public int getAddr()
+  public Integer getAddr()
   {
     return addr;
   }
@@ -140,9 +140,9 @@ public class RegisterImpl extends MinimalEObjectImpl.Container implements Regist
    * @generated
    */
   @Override
-  public void setAddr(int newAddr)
+  public void setAddr(Integer newAddr)
   {
-    int oldAddr = addr;
+    Integer oldAddr = addr;
     addr = newAddr;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, HwMapDslPackage.REGISTER__ADDR, oldAddr, addr));
@@ -309,7 +309,7 @@ public class RegisterImpl extends MinimalEObjectImpl.Container implements Regist
     switch (featureID)
     {
       case HwMapDslPackage.REGISTER__ADDR:
-        return addr != ADDR_EDEFAULT;
+        return ADDR_EDEFAULT == null ? addr != null : !ADDR_EDEFAULT.equals(addr);
       case HwMapDslPackage.REGISTER__NAME:
         return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
       case HwMapDslPackage.REGISTER__CONSTS:
