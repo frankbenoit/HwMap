@@ -1,0 +1,3 @@
+include 'org.chabu.hwmap'
+include 'org.chabu.hwmap.ide'
+include 'org.chabu.hwmap.tests'

@@ -1,0 +1,9 @@
+grammar org.chabu.hwmap.HwMapDsl with org.eclipse.xtext.common.Terminals
+
+generate hwMapDsl "http://www.chabu.org/hwmap/HwMapDsl"
+
+Model:
+	greetings+=Greeting*;
+	
+Greeting:
+	'Hello' name=ID '!';
