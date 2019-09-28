@@ -3,6 +3,11 @@
  */
 package org.chabu.hwmap.generator
 
+import java.nio.file.Paths
+import java.util.ArrayList
+import java.util.List
+import org.chabu.hwmap.hwMapDsl.MemoryMap
+import org.chabu.hwmap.hwMapDsl.Output
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
@@ -16,10 +21,182 @@ import org.eclipse.xtext.generator.IGeneratorContext
 class HwMapDslGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
+		System.out.println("Generating C/VHDL ...");
+		
+		for( mm : resource.allContents.filter(MemoryMap).toIterable ){
+			prepareData(mm)
+			for( output : mm.outputs ){
+				if( output.mode == 'C' ){
+					generateC( mm, fsa, output )
+				}
+				if( output.mode == 'VHDL' ){
+					generateVhdl( mm, fsa, output )
+				}
+			}
+			
+		}
 //		fsa.generateFile('greetings.txt', 'People to greet: ' + 
 //			resource.allContents
 //				.filter(Greeting)
 //				.map[name]
 //				.join(', '))
+	}
+	
+	static class Constant {
+		String name
+		String value
+	}
+	
+	static class StructField {
+		String type
+		String name
+		String arrayDim
+	}
+	
+	static class Struct {
+		int size
+		String name
+		List<StructField> fields = new ArrayList
+	}
+	
+	val constants = new ArrayList<Constant>();
+	val structs = new ArrayList<Struct>();
+	val align = 4
+	
+	def prepareData(MemoryMap mm) {
+		
+		constants.clear()
+		structs.clear()
+		
+		for( comp : mm.components ){
+			val compStruct = new Struct
+			compStruct.name = comp.compName
+			
+			for( block : comp.blocks ){
+				var dummyIndex = 0
+				var nextOffset = 0
+				val struct = new Struct
+				struct.name = '''«comp.compName»_«block.name»'''
+				struct.size = block.size
+				
+				for( reg : block.regs ){
+					
+					val field = new StructField
+					field.name = '''«struct.name»_«reg.name»'''
+					field.type = 'uint32'
+					
+					if( reg.addr % align != 0 ){
+						throw new RuntimeException("All offsets must be multiple of "+align)
+					}
+					if( reg.addr < nextOffset ){
+						throw new RuntimeException('''All registers must be sorted with increasing offset. «field.name» is not''')
+					}
+					if( reg.addr > nextOffset ){
+						val arraySize = (reg.addr - nextOffset) / align;
+						fillDummy( struct, arraySize, dummyIndex++ )
+					}
+					
+					nextOffset = reg.addr + align
+					for( const : reg.consts ){
+						addConstHex( '''«field.name»_CONST_«const.name»''', const.value )
+					}
+					for( bits : reg.bits ){
+						val bitsName = '''«field.name»_«bits.name»'''
+						val highBit = bits.range.left
+						val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
+						val width = highBit - lowBit +1
+						val mask = (( 1 << width ) - 1) << lowBit
+						
+						addConst( '''«bitsName»_BITPOS''', lowBit )
+						addConst( '''«bitsName»_WIDTH''', width )
+						addConstHex( '''«bitsName»_MASK''', mask )
+						
+						for( const : bits.consts ){
+							addConstHex( '''«bitsName»_CONST_«const.name»''', const.value << lowBit )
+						}
+					}
+					struct.fields.add(field)
+				}
+				val fillSize = (struct.size - nextOffset) / align;
+				if( fillSize > 0 ) {
+					fillDummy( struct, fillSize, dummyIndex++ )
+				}
+				
+				structs.add(struct)
+			}
+			
+			var dummyIndex = 0
+			var nextOffset = 0
+			for( inst : comp.insts ){
+				val field = new StructField
+				field.name = '''«inst.name»'''
+				field.type = '''struct «compStruct.name»_«inst.type»'''
+			
+				val fillSize = (inst.addr - nextOffset) / align;
+				if( fillSize > 0 ){
+					fillDummy( compStruct, fillSize, dummyIndex++ )
+					nextOffset = inst.addr
+				}
+				compStruct.fields.add(field)
+				val block = comp.blocks.findFirst[b| b.name == inst.type];
+				nextOffset += block.size
+			}
+			
+			structs.add(compStruct)
+		}
+	}
+	
+	def private void fillDummy( Struct struct, int wordSize, int dummyIndex ){
+		val dummyField = new StructField
+		dummyField.name = '''__dummy_«dummyIndex»'''
+		dummyField.type = 'uint32'
+		if( wordSize > 1 ){
+			dummyField.arrayDim = String.format("[0x%X]", wordSize)
+		}
+		struct.fields.add(dummyField)
+	}
+
+	def private void addConst( String name, int value ){
+		val c = new Constant()
+		c.name = name
+		c.value = Integer.toString(value)
+		constants.add(c)
+	}
+	
+	def private void addConstHex( String name, int value ){
+		val c = new Constant()
+		c.name = name
+		c.value = String.format("0x%X", value)
+		constants.add(c)
+	}
+	
+	def private void generateC( MemoryMap mm, IFileSystemAccess2 fsa, Output output ){
+		
+		val id = Paths.get(output.path).fileName.toString
+			.toUpperCase
+			.replaceAll("[.-]", "_")
+		
+		fsa.generateFile(output.path, '''
+		#ifndef «id»
+		#define «id»
+		
+		«FOR c:constants»
+		#define «c.name» «c.value»
+		«ENDFOR»
+		«FOR s:structs»
+		
+		struct «s.name» {
+		    «FOR f:s.fields»
+		    «f.type» «f.name»«f.arrayDim»;
+		    «ENDFOR»
+		}
+		«ENDFOR»
+		
+		#endif
+		''');
+	}
+	def private void generateVhdl( MemoryMap mm, IFileSystemAccess2 fsa, Output output ){
+		fsa.generateFile(output.path, '''
+		''');
 	}
 }

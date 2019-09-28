@@ -4,15 +4,25 @@
 package org.chabu.hwmap.tests
 
 import com.google.inject.Inject
+import com.google.inject.Injector
+import org.chabu.hwmap.generator.HwMapDslGenerator
+import org.chabu.hwmap.hwMapDsl.Component
 import org.chabu.hwmap.hwMapDsl.MemoryMap
+import org.chabu.hwmap.hwMapDsl.Output
+import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.generator.InMemoryFileSystemAccess
+import org.eclipse.xtext.resource.XtextResource
+import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.chabu.hwmap.hwMapDsl.Component
-import org.chabu.hwmap.hwMapDsl.Output
+import org.chabu.hwmap.HwMapDslStandaloneSetup
+import org.eclipse.xtext.generator.IGenerator2
+import static org.eclipse.xtext.generator.IFileSystemAccess2.DEFAULT_OUTPUT
 
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)
@@ -20,11 +30,16 @@ class HwMapDslParsingTest {
 	@Inject
 	ParseHelper<MemoryMap> parseHelper
 	
+	@Inject
+	IGenerator2 generator
+	
+	InMemoryFileSystemAccess fsa = new InMemoryFileSystemAccess();
+	
 	@Test
 	def void exampleParsing() {
 		val result = parseHelper.parse('''
-			Output VHDL "../relpath"
-			Output C    "../relpath"
+			Output VHDL "../relpath/out.vhd"
+			Output C    "../relpath/out.h"
 			
 			Component CapSim {
 				
@@ -39,10 +54,10 @@ class HwMapDslParsingTest {
 						       Constant 0x0 Nothing
 						       Constant 0x1 Start
 						       Constant 0x2 Stop
-					0x08 ModVersion
+					0x10 ModVersion
 						Constant 0x12341200 Value
 					
-					0x0A ModVersion
+					0x18 ModVersion2
 				}
 				
 				Block TraceMem 0x1000 {
@@ -60,7 +75,7 @@ class HwMapDslParsingTest {
 
 		val out = result.outputs.get(0) as Output
 		Assertions.assertEquals("VHDL", out.mode );
-		Assertions.assertEquals("../relpath", out.path );
+		Assertions.assertEquals("../relpath/out.vhd", out.path );
 		
 		val comp = result.components.get(0) as Component
 		Assertions.assertEquals("CapSim", comp.compName );
@@ -93,7 +108,7 @@ class HwMapDslParsingTest {
 				
 		val regModVersion = reg.regs.get(2)
 		Assertions.assertEquals("ModVersion", regModVersion.name );
-		Assertions.assertEquals(0x08, regModVersion.addr );
+		Assertions.assertEquals(0x10, regModVersion.addr );
 		Assertions.assertEquals("Value", regModVersion.consts.get(0).name );
 		Assertions.assertEquals(0x12341200, regModVersion.consts.get(0).value );
 		
@@ -107,7 +122,19 @@ class HwMapDslParsingTest {
 		Assertions.assertEquals("TraceMem", instMem.type );
 		Assertions.assertEquals("TraceMem_A", instMem.name );
 		
+		generator.doGenerate( result.eResource, fsa, null );
+		
+		Assertions.assertEquals( 2, fsa.getTextFiles.size )
+		Assertions.assertTrue(fsa.textFiles.containsKey(DEFAULT_OUTPUT+"../relpath/out.h"))
+		Assertions.assertTrue(fsa.textFiles.containsKey(DEFAULT_OUTPUT+"../relpath/out.vhd"))
+        Assertions.assertEquals(
+            '''
+            #ifndef OUT_H
+            #define OUT_H
+            #endif
+            '''.toString, fsa.textFiles.get(DEFAULT_OUTPUT+"../relpath/out.h").toString
+        )
+		
 	}
-
 
 }
