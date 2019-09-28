@@ -9,6 +9,7 @@ import java.util.List
 import org.chabu.hwmap.hwMapDsl.MemoryMap
 import org.chabu.hwmap.hwMapDsl.Output
 import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.diagnostics.ExceptionDiagnostic
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
@@ -22,19 +23,25 @@ class HwMapDslGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		System.out.println("Generating C/VHDL ...");
-		
-		for( mm : resource.allContents.filter(MemoryMap).toIterable ){
-			prepareData(mm)
-			for( output : mm.outputs ){
-				if( output.mode == 'C' ){
-					generateC( mm, fsa, output )
+			
+			for( mm : resource.allContents.filter(MemoryMap).toIterable ){
+				try {
+					
+					prepareData(mm)
+					for( output : mm.outputs ){
+						if( output.mode == 'C' ){
+							generateC( mm, fsa, output )
+						}
+						if( output.mode == 'VHDL' ){
+							generateVhdl( mm, fsa, output )
+						}
+					}
+						
 				}
-				if( output.mode == 'VHDL' ){
-					generateVhdl( mm, fsa, output )
+				catch( RuntimeException e ){
+					mm.eResource.errors.add( new ExceptionDiagnostic( e ) )
 				}
 			}
-			
-		}
 //		fsa.generateFile('greetings.txt', 'People to greet: ' + 
 //			resource.allContents
 //				.filter(Greeting)
@@ -78,6 +85,9 @@ class HwMapDslGenerator extends AbstractGenerator {
 				val struct = new Struct
 				struct.name = '''«comp.compName»_«block.name»'''
 				struct.size = block.size
+				if( block.size % align != 0 ){
+					throw new RuntimeException('''Block «block.name» has non-aligned size of «block.size».''')
+				}
 				
 				for( reg : block.regs ){
 					
@@ -86,10 +96,10 @@ class HwMapDslGenerator extends AbstractGenerator {
 					field.type = 'uint32'
 					
 					if( reg.addr % align != 0 ){
-						throw new RuntimeException("All offsets must be multiple of "+align)
+						throw new RuntimeException('''Register «reg.name» has offset of «reg.addr». Must be multiple of «align»''')
 					}
 					if( reg.addr < nextOffset ){
-						throw new RuntimeException('''All registers must be sorted with increasing offset. «field.name» is not''')
+						throw new RuntimeException('''Registers «reg.name» must have increasing offset to previous register''')
 					}
 					if( reg.addr > nextOffset ){
 						val arraySize = (reg.addr - nextOffset) / align;
@@ -106,6 +116,16 @@ class HwMapDslGenerator extends AbstractGenerator {
 						val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
 						val width = highBit - lowBit +1
 						val mask = (( 1 << width ) - 1) << lowBit
+						
+						if( lowBit < 0 ){
+							throw new RuntimeException('''Registers «reg.name» bits «bits.name» low bit is negative''')
+						}
+						if( highBit > 31 ){
+							throw new RuntimeException('''Registers «reg.name» bits «bits.name» high bit is >31''')
+						}
+						if( highBit < lowBit ){
+							throw new RuntimeException('''Registers «reg.name» bits «bits.name» low bit > high bit''')
+						}
 						
 						addConst( '''«bitsName»_BITPOS''', lowBit )
 						addConst( '''«bitsName»_WIDTH''', width )
@@ -132,13 +152,23 @@ class HwMapDslGenerator extends AbstractGenerator {
 				field.name = '''«inst.name»'''
 				field.type = '''struct «compStruct.name»_«inst.type»'''
 			
+				if( inst.addr % align != 0 ){
+					throw new RuntimeException('''Instance «field.name» has non-aligned offset of «inst.addr».''')
+				}
+
 				val fillSize = (inst.addr - nextOffset) / align;
+				if( fillSize < 0 ){
+					throw new RuntimeException('''Instance «field.name» has no increasing offset. Minimum expected offset is «String::format("0x%X", nextOffset)»''')
+				}
 				if( fillSize > 0 ){
 					fillDummy( compStruct, fillSize, dummyIndex++ )
 					nextOffset = inst.addr
 				}
 				compStruct.fields.add(field)
 				val block = comp.blocks.findFirst[b| b.name == inst.type];
+				if( block === null ){
+					throw new RuntimeException('''Block instance type «compStruct.name» «inst.type» cannot be resolved.''')
+				}
 				nextOffset += block.size
 			}
 			
