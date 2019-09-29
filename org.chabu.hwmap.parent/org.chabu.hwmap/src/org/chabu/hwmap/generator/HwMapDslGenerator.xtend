@@ -44,6 +44,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 	static class Constant {
 		String name
 		String value
+		String valueVhdl
 	}
 	
 	static class StructField {
@@ -58,8 +59,22 @@ class HwMapDslGenerator extends AbstractGenerator {
 		List<StructField> fields = new ArrayList
 	}
 	
+	static class VhdlInstSelect {
+		String name
+		int firstBit;
+		String hexAddress;
+	}
+	
+	static class VhdlRegisterSelect {
+		String name
+		int upperBit;
+		String hexAddress;
+	}
+	
 	val constants = new ArrayList<Constant>();
 	val structs = new ArrayList<Struct>();
+	val vhdlInstSelects = new ArrayList<VhdlInstSelect>();
+	val vhdlRegisterSelects = new ArrayList<VhdlRegisterSelect>();
 	val align = 4
 	
 	def prepareData(MemoryMap mm) {
@@ -80,13 +95,23 @@ class HwMapDslGenerator extends AbstractGenerator {
 				if( block.size % align != 0 ){
 					throw new RuntimeException('''Block «block.name» has non-aligned size of «block.size».''')
 				}
-				
+				if( Integer::bitCount(block.size) != 1 ){
+					throw new RuntimeException('''Block «block.name» has non-power-2 size''')
+					
+				}
 				for( reg : block.regs ){
 					
 					val field = new StructField
 					val fieldFqn = '''«struct.name»_«reg.name»'''
 					field.name = reg.name
 					field.type = 'uint32'
+					
+					val vhdlRegisterSelect = new VhdlRegisterSelect()
+					vhdlRegisterSelect.upperBit = Integer::numberOfTrailingZeros(block.size)-1
+					vhdlRegisterSelect.hexAddress = String::format("%04X", reg.addr)
+					vhdlRegisterSelect.name = fieldFqn
+					vhdlRegisterSelects.add(vhdlRegisterSelect)
+						
 					
 					if( reg.addr % align != 0 ){
 						throw new RuntimeException('''Register «reg.name» has offset of «reg.addr». Must be multiple of «align»''')
@@ -164,6 +189,16 @@ class HwMapDslGenerator extends AbstractGenerator {
 				if( block === null ){
 					throw new RuntimeException('''Block instance type «compStruct.name» «inst.type» cannot be resolved.''')
 				}
+				if( inst.addr % block.size != 0 ){
+					throw new RuntimeException('''Block instance «inst.name» at address «inst.addr» is not multiple of block size «block.size».''')
+				}
+				
+				val vhdlInstSelect = new VhdlInstSelect()
+				vhdlInstSelect.firstBit = Integer::numberOfTrailingZeros(block.size)
+				vhdlInstSelect.hexAddress = String::format("%04X", inst.addr)
+				vhdlInstSelect.name = '''«compStruct.name»_«inst.name»'''
+				vhdlInstSelects.add(vhdlInstSelect)
+				
 				nextOffset += block.size
 			}
 			
@@ -185,6 +220,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		val c = new Constant()
 		c.name = name
 		c.value = Integer.toString(value)
+		c.valueVhdl = Integer.toString(value)
 		constants.add(c)
 	}
 	
@@ -192,6 +228,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		val c = new Constant()
 		c.name = name
 		c.value = String.format("0x%X", value)
+		c.valueVhdl = String.format("16#%X#", value)
 		constants.add(c)
 	}
 	
@@ -221,7 +258,47 @@ class HwMapDslGenerator extends AbstractGenerator {
 		''');
 	}
 	def private void generateVhdl( MemoryMap mm, IFileSystemAccess2 fsa, Output output ){
+		
+		val id = Paths.get(output.path).fileName.toString
+			.toLowerCase
+			.replaceAll("\\.vhd", "")
+			.replaceAll("[.-]", "_")
+		
 		fsa.generateFile(output.path, '''
+		package «id» is
+		  «FOR c:constants»
+		  constant «c.name» : integer := «c.valueVhdl»
+		  «ENDFOR»
+		
+		  «FOR s:vhdlInstSelects»
+		  IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic;
+		  «ENDFOR»
+		
+		  «FOR s:vhdlRegisterSelects»
+		  IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic;
+		  «ENDFOR»
+		
+		end package «id»;
+		
+		package body «id» is
+		
+		  «FOR s:vhdlInstSelects»
+		  IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic is
+		  begin
+		    return i_addr = x"«s.hexAddress»"( 15 downto «s.firstBit» ) and i_cyc = '1';
+		  end
+		  
+		  «ENDFOR»
+		  «FOR s:vhdlRegisterSelects»
+		  IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic is
+		  begin
+		    return i_addr = x"«s.hexAddress»"( «s.upperBit» downto 2 ) and i_cyc = '1';
+		  end
+		  
+		  «ENDFOR»
+		end package body «id»;
+		«FOR s:structs»
+		«ENDFOR»
 		''');
 	}
 }

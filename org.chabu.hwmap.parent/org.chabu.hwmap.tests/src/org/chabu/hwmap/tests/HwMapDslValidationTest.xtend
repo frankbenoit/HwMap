@@ -47,6 +47,17 @@ class HwMapDslValidationTest {
 	}
 	
 	@Test
+	def void blockSizePower2() {
+		val result = parseNoErrors('''
+			Component CapSim {
+				Block Regs 0x30 {
+				}
+			}
+		''')
+		generateWithErrorContaining( result, "Block Regs has non-power-2 size" )
+	}
+	
+	@Test
 	def void instOffsetAligned() {
 		val result = parseNoErrors('''
 			Component CapSim {
@@ -81,6 +92,18 @@ class HwMapDslValidationTest {
 			}
 		''')
 		generateWithErrorContaining( result, "Instance Regs has no increasing offset" )
+	}
+	
+	@Test
+	def void instOffsetBinaryAligned() {
+		val result = parseNoErrors('''
+			Component CapSim {
+				Block Regs 0x20 {
+				}
+				0x010 Regs Regs
+			}
+		''')
+		generateWithErrorContaining( result, "is not multiple of block size" )
 	}
 	
 	@Test
