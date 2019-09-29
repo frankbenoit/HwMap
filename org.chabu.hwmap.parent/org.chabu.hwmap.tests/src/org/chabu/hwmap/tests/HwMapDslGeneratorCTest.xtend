@@ -17,16 +17,17 @@ import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.testing.util.ParseHelper
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
 import org.chabu.hwmap.HwMapDslStandaloneSetup
 import org.eclipse.xtext.generator.IGenerator2
+import static org.assertj.core.api.Assertions.*;
 import static org.eclipse.xtext.generator.IFileSystemAccess2.DEFAULT_OUTPUT
+import org.assertj.core.api.Assertions
 
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)
-class HwMapDslValidationTest {
+class HwMapDslGeneratorCTest {
 	@Inject
 	ParseHelper<MemoryMap> parseHelper
 	
@@ -35,150 +36,151 @@ class HwMapDslValidationTest {
 	
 	InMemoryFileSystemAccess fsa = new InMemoryFileSystemAccess();
 
+	
 	@Test
-	def void blockSizeAligned() {
+	def void selfIncludeProtection() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x21 {
-				}
 			}
 		''')
-		generateWithErrorContaining( result, "Block Regs has non-aligned size" )
+		generateWithTextContaining( result, '''
+		#ifndef OUT_H
+		#define OUT_H
+		''' )
 	}
 	
 	@Test
-	def void instOffsetAligned() {
+	def void componentStruct() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
-				}
-				0x003 Regs Regs
 			}
 		''')
-		generateWithErrorContaining( result, "Instance Regs has non-aligned offset" )
+		generateWithTextContaining( result, "struct CapSim {" )
 	}
 	
 	@Test
-	def void instCannotResolveBlock() {
+	def void blockStruct() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
-				}
-				0x0 Rock Regs
-			}
-		''')
-		generateWithErrorContaining( result, "Block instance type CapSim Rock cannot be resolved" )
-	}
-	
-	@Test
-	def void instOffsetIncreasing() {
-		val result = parseNoErrors('''
-			Component CapSim {
-				Block Regs 0x20 {
-				}
-				0x000 Regs Regs
-				0x01C Regs Regs
-			}
-		''')
-		generateWithErrorContaining( result, "Instance Regs has no increasing offset" )
-	}
-	
-	@Test
-	def void registerOffsetAligned() {
-		val result = parseNoErrors('''
-			Component CapSim {
-				Block Regs 0x20 {
-					0x03 Control
+				Block Reg 0x20 {
 				}
 			}
 		''')
-		generateWithErrorContaining( result, "Register Control has offset of 3. Must be multiple of 4" )
+		generateWithTextContaining( result, "struct CapSim_Reg {" )
 	}
 	
 	@Test
-	def void registerOffsetIncreasing() {
+	def void registerField() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
+				Block Reg 0x20 {
 					0x04 Control
-					0x04 Control2
 				}
 			}
 		''')
-		generateWithErrorContaining( result, "Registers Control2 must have increasing offset" )
+		generateWithTextContaining( result, "uint32 Control;" )
 	}
 	
 	@Test
-	def void registerFitsInBlock() {
+	def void blockInstance() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
-					0x20 Control2
-				}
-			}
-		''')
-		generateWithErrorContaining( result, "Registers Control2 does not fit into block Regs with size 0x20" )
-	}
-	
-	@Test
-	def void bitsPosSingleNegative() {
-		val result = parseNoErrors('''
-			Component CapSim {
-				Block Regs 0x20 {
+				Block Reg 0x20 {
 					0x04 Control
-						[-1] IRQ
 				}
+				0x00 Reg Registers
 			}
 		''')
-		generateWithErrorContaining( result, "Registers Control bits IRQ low bit is negative" )
+		generateWithTextContaining( result, "struct CapSim_Reg Registers;" )
 	}
 	
 	@Test
-	def void bitsPosSingleTooBig() {
+	def void registerConst() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
+				Block Reg 0x20 {
 					0x04 Control
-						[32] IRQ
+						Constant 5 Start
 				}
 			}
 		''')
-		generateWithErrorContaining( result, "Registers Control bits IRQ high bit is >31" )
+		generateWithTextContaining( result, "#define CapSim_Reg_Control_CONST_Start 0x5" )
 	}
 	
 	@Test
-	def void bitsPosRangeTooBig() {
+	def void bitsConst() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
+				Block Reg 0x20 {
 					0x04 Control
-						[32..0] IRQ
+					[0] IRQ
+						Constant 1 Enable
 				}
 			}
 		''')
-		generateWithErrorContaining( result, "Registers Control bits IRQ high bit is >31" )
+		generateWithTextContaining( result, "#define CapSim_Reg_Control_IRQ_CONST_Enable 0x1" )
 	}
 	
 	@Test
-	def void bitsPosRangeInvalid() {
+	def void bitsSinglePosConst() {
 		val result = parseNoErrors('''
+			Output C "out.h"
 			Component CapSim {
-				Block Regs 0x20 {
+				Block Reg 0x20 {
 					0x04 Control
-						[7..12] IRQ
+					[3] IRQ
 				}
 			}
 		''')
-		generateWithErrorContaining( result, "Registers Control bits IRQ low bit > high bit" )
+		generateWithTextContaining( result, '''
+		#define CapSim_Reg_Control_IRQ_BITPOS 3
+		#define CapSim_Reg_Control_IRQ_WIDTH 1
+		#define CapSim_Reg_Control_IRQ_MASK 0x8
+		''' )
+	}
+	
+	@Test
+	def void bitsRangePosConst() {
+		val result = parseNoErrors('''
+			Output C "out.h"
+			Component CapSim {
+				Block Reg 0x20 {
+					0x04 Control
+					[7..4] Command
+				}
+			}
+		''')
+		generateWithTextContaining( result, '''
+		#define CapSim_Reg_Control_Command_BITPOS 4
+		#define CapSim_Reg_Control_Command_WIDTH 4
+		#define CapSim_Reg_Control_Command_MASK 0xF0
+		''' )
 	}
 	
 	def MemoryMap parseNoErrors(CharSequence text){
 		val result = parseHelper.parse(text);
-		Assertions.assertNotNull(result)
+		assertThat(result).isNotNull();
 		val errors = result.eResource.errors
-		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
+		assertThat(errors)
+			.^as('''Unexpected errors: «errors.join(", ")»''')
+			.isEmpty()
 		return result;		
 	}	
+	
+	def generateWithTextContaining(MemoryMap result, String expectedText) {
+		generator.doGenerate( result.eResource, fsa, null );
+		assertNoErrors(result)
+		val text = fsa.textFiles.get(DEFAULT_OUTPUT+"out.h").toString
+		assertThat( text )
+			.contains(expectedText)	
+	}
 	
 	def generateWithErrorContaining(MemoryMap result, String expectedError) {
 		generator.doGenerate( result.eResource, fsa, null );
@@ -187,13 +189,19 @@ class HwMapDslValidationTest {
 	
 	def assertHasErrorContaining(MemoryMap result, String text) {
 		val errors = result.eResource.errors
-		Assertions.assertEquals(1, errors.size(), '''Unexpected errors: «errors.join(", ")»''')
-		Assertions.assertTrue( errors.get(0).message.contains(text), '''Unexpected errors: «errors.join(", ")»''')
+		assertThat(errors)
+			.^as('''Unexpected errors: «errors.join(", ")»''')
+			.hasSize(1)
+		assertThat( errors.get(0).message)
+			.^as( '''Unexpected errors: «errors.join(", ")»''')
+			.contains(text)
 	}
 
 	def assertNoErrors(MemoryMap result) {
 		val errors = result.eResource.errors
-		Assertions.assertTrue(errors.isEmpty, '''Unexpected errors: «errors.join(", ")»''')
+		assertThat(errors)
+		.^as('''Unexpected errors: «errors.join(", ")»''')
+		.isEmpty
 	}
 
 }

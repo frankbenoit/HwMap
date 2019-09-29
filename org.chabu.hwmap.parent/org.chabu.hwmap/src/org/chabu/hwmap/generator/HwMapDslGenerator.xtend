@@ -20,33 +20,25 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class HwMapDslGenerator extends AbstractGenerator {
-
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
-		System.out.println("Generating C/VHDL ...");
-			
-			for( mm : resource.allContents.filter(MemoryMap).toIterable ){
-				try {
-					
-					prepareData(mm)
-					for( output : mm.outputs ){
-						if( output.mode == 'C' ){
-							generateC( mm, fsa, output )
-						}
-						if( output.mode == 'VHDL' ){
-							generateVhdl( mm, fsa, output )
-						}
+		for( mm : resource.allContents.filter(MemoryMap).toIterable ){
+			try {
+				
+				prepareData(mm)
+				for( output : mm.outputs ){
+					if( output.mode == 'C' ){
+						generateC( mm, fsa, output )
 					}
-						
+					if( output.mode == 'VHDL' ){
+						generateVhdl( mm, fsa, output )
+					}
 				}
-				catch( RuntimeException e ){
-					mm.eResource.errors.add( new ExceptionDiagnostic( e ) )
-				}
+					
 			}
-//		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-//			resource.allContents
-//				.filter(Greeting)
-//				.map[name]
-//				.join(', '))
+			catch( RuntimeException e ){
+				mm.eResource.errors.add( new ExceptionDiagnostic( e ) )
+			}
+		}
 	}
 	
 	static class Constant {
@@ -92,7 +84,8 @@ class HwMapDslGenerator extends AbstractGenerator {
 				for( reg : block.regs ){
 					
 					val field = new StructField
-					field.name = '''«struct.name»_«reg.name»'''
+					val fieldFqn = '''«struct.name»_«reg.name»'''
+					field.name = reg.name
 					field.type = 'uint32'
 					
 					if( reg.addr % align != 0 ){
@@ -105,13 +98,15 @@ class HwMapDslGenerator extends AbstractGenerator {
 						val arraySize = (reg.addr - nextOffset) / align;
 						fillDummy( struct, arraySize, dummyIndex++ )
 					}
-					
+					if( reg.addr + align > block.size ){
+						throw new RuntimeException('''Registers «reg.name» does not fit into block «block.name» with size «String::format("0x%X", block.size )»''')
+					}
 					nextOffset = reg.addr + align
 					for( const : reg.consts ){
-						addConstHex( '''«field.name»_CONST_«const.name»''', const.value )
+						addConstHex( '''«fieldFqn»_CONST_«const.name»''', const.value )
 					}
 					for( bits : reg.bits ){
-						val bitsName = '''«field.name»_«bits.name»'''
+						val bitsName = '''«fieldFqn»_«bits.name»'''
 						val highBit = bits.range.left
 						val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
 						val width = highBit - lowBit +1
