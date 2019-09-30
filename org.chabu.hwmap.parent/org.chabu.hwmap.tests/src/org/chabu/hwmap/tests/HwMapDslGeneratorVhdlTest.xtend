@@ -74,7 +74,11 @@ class HwMapDslGeneratorVhdlTest {
 				0x40 RegDecl Reg
 			}
 		''')
-		generateWithTextContaining( result, '''return i_addr = x"0040"( 15 downto 5 ) and i_cyc = '1';''' )
+		generateWithTextContaining( result, '''
+		  «"  "»  constant addr : std_logic_vector( 15 downto 0 ) := x"0040";
+		  «"  "»begin
+		  «"  "»  return i_addr = addr( 15 downto 5 ) and i_cyc = '1';
+		''' )
 	}
 	
 	@Test
@@ -88,9 +92,9 @@ class HwMapDslGeneratorVhdlTest {
 			}
 		''')
 		generateWith2TextContaining( result, '''
-		IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic;
+		function IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic;
 		''', '''
-		IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic is
+		function IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic is
 		''' )
 	}
 	
@@ -104,7 +108,11 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''return i_addr = x"0004"( 4 downto 2 ) and i_cyc = '1';''' )
+		generateWithTextContaining( result, '''
+		«"  "»  constant addr : std_logic_vector( 15 downto 0 ) := x"0004";
+		«"  "»begin
+		«"  "»  return i_addr = addr( 4 downto 2 ) and i_cyc = '1';
+		''' )
 	}
 	
 	@Test
@@ -118,7 +126,7 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_CONST_C2 : integer := 16#123#''' )
+		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_CONST_C2 : std_logic_vector( 31 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 32 );''' )
 	}
 	
 	@Test
@@ -133,7 +141,7 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : integer := 16#1230#''' )
+		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : std_logic_vector( 3 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 4 );''' )
 	}
 	
 	def MemoryMap parseNoErrors(CharSequence text){

@@ -12,7 +12,7 @@ MemoryMap:
 
 Output:
 	{Output}
-	'Output' mode=('VHDL'|'C') path=STRING	
+	'Output' mode=ID path=STRING	
 ;
 
 Component:

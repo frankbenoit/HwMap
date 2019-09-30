@@ -13,6 +13,12 @@ import org.eclipse.xtext.diagnostics.ExceptionDiagnostic
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import org.chabu.hwmap.hwMapDsl.RegisterBits
+import org.chabu.hwmap.hwMapDsl.Register
+import org.chabu.hwmap.hwMapDsl.Block
+import org.chabu.hwmap.hwMapDsl.Instantiation
+import org.chabu.hwmap.generator.HwMapDslGenerator.Struct
+import org.chabu.hwmap.hwMapDsl.Component
 
 /**
  * Generates code from your model files on save.
@@ -20,17 +26,20 @@ import org.eclipse.xtext.generator.IGeneratorContext
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#code-generation
  */
 class HwMapDslGenerator extends AbstractGenerator {
+	
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		for( mm : resource.allContents.filter(MemoryMap).toIterable ){
 			try {
 				
 				prepareData(mm)
 				for( output : mm.outputs ){
-					if( output.mode == 'C' ){
-						generateC( mm, fsa, output )
-					}
-					if( output.mode == 'VHDL' ){
-						generateVhdl( mm, fsa, output )
+					switch output.mode {
+						case 'C':
+							generateC( mm, fsa, output )
+						case 'VHDL':
+							generateVhdl( mm, fsa, output )
+						default:
+							throw new RuntimeException('''Unknown output mode «output.mode».''')
 					}
 				}
 					
@@ -41,31 +50,32 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 	}
 	
-	static class Constant {
+	private static class Constant {
 		String name
+		String typeVhdl
 		String value
 		String valueVhdl
 	}
 	
-	static class StructField {
+	private static class StructField {
 		String type
 		String name
 		String arrayDim
 	}
 	
-	static class Struct {
+	private static class Struct {
 		int size
 		String name
 		List<StructField> fields = new ArrayList
 	}
 	
-	static class VhdlInstSelect {
+	private static class VhdlInstSelect {
 		String name
 		int firstBit;
 		String hexAddress;
 	}
 	
-	static class VhdlRegisterSelect {
+	private static class VhdlRegisterSelect {
 		String name
 		int upperBit;
 		String hexAddress;
@@ -76,8 +86,10 @@ class HwMapDslGenerator extends AbstractGenerator {
 	val vhdlInstSelects = new ArrayList<VhdlInstSelect>();
 	val vhdlRegisterSelects = new ArrayList<VhdlRegisterSelect>();
 	val align = 4
-	
-	def prepareData(MemoryMap mm) {
+	var nextOffset = 0
+	var dummyIndex = 0
+		
+	def private prepareData(MemoryMap mm) {
 		
 		constants.clear()
 		structs.clear()
@@ -87,122 +99,138 @@ class HwMapDslGenerator extends AbstractGenerator {
 			compStruct.name = comp.compName
 			
 			for( block : comp.blocks ){
-				var dummyIndex = 0
-				var nextOffset = 0
-				val struct = new Struct
-				struct.name = '''«comp.compName»_«block.name»'''
-				struct.size = block.size
-				if( block.size % align != 0 ){
-					throw new RuntimeException('''Block «block.name» has non-aligned size of «block.size».''')
-				}
-				if( Integer::bitCount(block.size) != 1 ){
-					throw new RuntimeException('''Block «block.name» has non-power-2 size''')
-					
-				}
-				for( reg : block.regs ){
-					
-					val field = new StructField
-					val fieldFqn = '''«struct.name»_«reg.name»'''
-					field.name = reg.name
-					field.type = 'uint32'
-					
-					val vhdlRegisterSelect = new VhdlRegisterSelect()
-					vhdlRegisterSelect.upperBit = Integer::numberOfTrailingZeros(block.size)-1
-					vhdlRegisterSelect.hexAddress = String::format("%04X", reg.addr)
-					vhdlRegisterSelect.name = fieldFqn
-					vhdlRegisterSelects.add(vhdlRegisterSelect)
-						
-					
-					if( reg.addr % align != 0 ){
-						throw new RuntimeException('''Register «reg.name» has offset of «reg.addr». Must be multiple of «align»''')
-					}
-					if( reg.addr < nextOffset ){
-						throw new RuntimeException('''Registers «reg.name» must have increasing offset to previous register''')
-					}
-					if( reg.addr > nextOffset ){
-						val arraySize = (reg.addr - nextOffset) / align;
-						fillDummy( struct, arraySize, dummyIndex++ )
-					}
-					if( reg.addr + align > block.size ){
-						throw new RuntimeException('''Registers «reg.name» does not fit into block «block.name» with size «String::format("0x%X", block.size )»''')
-					}
-					nextOffset = reg.addr + align
-					for( const : reg.consts ){
-						addConstHex( '''«fieldFqn»_CONST_«const.name»''', const.value )
-					}
-					for( bits : reg.bits ){
-						val bitsName = '''«fieldFqn»_«bits.name»'''
-						val highBit = bits.range.left
-						val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
-						val width = highBit - lowBit +1
-						val mask = (( 1 << width ) - 1) << lowBit
-						
-						if( lowBit < 0 ){
-							throw new RuntimeException('''Registers «reg.name» bits «bits.name» low bit is negative''')
-						}
-						if( highBit > 31 ){
-							throw new RuntimeException('''Registers «reg.name» bits «bits.name» high bit is >31''')
-						}
-						if( highBit < lowBit ){
-							throw new RuntimeException('''Registers «reg.name» bits «bits.name» low bit > high bit''')
-						}
-						
-						addConst( '''«bitsName»_BITPOS''', lowBit )
-						addConst( '''«bitsName»_WIDTH''', width )
-						addConstHex( '''«bitsName»_MASK''', mask )
-						
-						for( const : bits.consts ){
-							addConstHex( '''«bitsName»_CONST_«const.name»''', const.value << lowBit )
-						}
-					}
-					struct.fields.add(field)
-				}
-				val fillSize = (struct.size - nextOffset) / align;
-				if( fillSize > 0 ) {
-					fillDummy( struct, fillSize, dummyIndex++ )
-				}
-				
-				structs.add(struct)
+				handleBlock( block, comp )
 			}
 			
-			var dummyIndex = 0
-			var nextOffset = 0
-			for( inst : comp.insts ){
-				val field = new StructField
-				field.name = '''«inst.name»'''
-				field.type = '''struct «compStruct.name»_«inst.type»'''
-			
-				if( inst.addr % align != 0 ){
-					throw new RuntimeException('''Instance «field.name» has non-aligned offset of «inst.addr».''')
-				}
 
-				val fillSize = (inst.addr - nextOffset) / align;
-				if( fillSize < 0 ){
-					throw new RuntimeException('''Instance «field.name» has no increasing offset. Minimum expected offset is «String::format("0x%X", nextOffset)»''')
-				}
-				if( fillSize > 0 ){
-					fillDummy( compStruct, fillSize, dummyIndex++ )
-					nextOffset = inst.addr
-				}
-				compStruct.fields.add(field)
-				val block = comp.blocks.findFirst[b| b.name == inst.type];
-				if( block === null ){
-					throw new RuntimeException('''Block instance type «compStruct.name» «inst.type» cannot be resolved.''')
-				}
-				if( inst.addr % block.size != 0 ){
-					throw new RuntimeException('''Block instance «inst.name» at address «inst.addr» is not multiple of block size «block.size».''')
-				}
-				
-				val vhdlInstSelect = new VhdlInstSelect()
-				vhdlInstSelect.firstBit = Integer::numberOfTrailingZeros(block.size)
-				vhdlInstSelect.hexAddress = String::format("%04X", inst.addr)
-				vhdlInstSelect.name = '''«compStruct.name»_«inst.name»'''
-				vhdlInstSelects.add(vhdlInstSelect)
-				
-				nextOffset += block.size
+			dummyIndex = 0
+			nextOffset = 0
+			for( inst : comp.insts ){
+				handleInstance( inst, compStruct, comp )
 			}
 			
 			structs.add(compStruct)
+		}
+	}
+	
+	def private handleBlock(Block block, Component comp) {
+		dummyIndex = 0
+		nextOffset = 0
+		val struct = new Struct
+		struct.name = '''«comp.compName»_«block.name»'''
+		struct.size = block.size
+		if( block.size % align != 0 ){
+			throw new RuntimeException('''Block «block.name» has non-aligned size of «block.size».''')
+		}
+		if( Integer::bitCount(block.size) != 1 ){
+			throw new RuntimeException('''Block «block.name» has non-power-2 size''')
+			
+		}
+		for( reg : block.regs ){
+			handleRegister( reg, struct.name, block, struct )
+		}
+		val fillSize = (struct.size - nextOffset) / align;
+		if( fillSize > 0 ) {
+			fillDummy( struct, fillSize, dummyIndex++ )
+		}
+		
+		structs.add(struct)
+	}
+	
+	def private handleInstance(Instantiation inst, Struct compStruct, Component comp ) {
+		val field = new StructField
+		field.name = '''«inst.name»'''
+		field.type = '''struct «compStruct.name»_«inst.type»'''
+	
+		if( inst.addr % align != 0 ){
+			throw new RuntimeException('''Instance «field.name» has non-aligned offset of «inst.addr».''')
+		}
+
+		val fillSize = (inst.addr - nextOffset) / align;
+		if( fillSize < 0 ){
+			throw new RuntimeException('''Instance «field.name» has no increasing offset. Minimum expected offset is «String::format("0x%X", nextOffset)»''')
+		}
+		if( fillSize > 0 ){
+			fillDummy( compStruct, fillSize, dummyIndex++ )
+			nextOffset = inst.addr
+		}
+		compStruct.fields.add(field)
+		val block = comp.blocks.findFirst[b| b.name == inst.type];
+		if( block === null ){
+			throw new RuntimeException('''Block instance type «compStruct.name» «inst.type» cannot be resolved.''')
+		}
+		if( inst.addr % block.size != 0 ){
+			throw new RuntimeException('''Block instance «inst.name» at address «inst.addr» is not multiple of block size «block.size».''')
+		}
+		
+		val vhdlInstSelect = new VhdlInstSelect()
+		vhdlInstSelect.firstBit = Integer::numberOfTrailingZeros(block.size)
+		vhdlInstSelect.hexAddress = String::format("%04X", inst.addr)
+		vhdlInstSelect.name = '''«compStruct.name»_«inst.name»'''
+		vhdlInstSelects.add(vhdlInstSelect)
+		
+		nextOffset += block.size
+	}
+	
+	def private handleRegister(Register reg, String structName, Block block, Struct struct ) {
+		val field = new StructField
+		val fieldFqn = '''«structName»_«reg.name»'''
+		field.name = reg.name
+		field.type = 'uint32'
+		
+		val vhdlRegisterSelect = new VhdlRegisterSelect()
+		vhdlRegisterSelect.upperBit = Integer::numberOfTrailingZeros(block.size)-1
+		vhdlRegisterSelect.hexAddress = String::format("%04X", reg.addr)
+		vhdlRegisterSelect.name = fieldFqn
+		vhdlRegisterSelects.add(vhdlRegisterSelect)
+			
+		
+		if( reg.addr % align != 0 ){
+			throw new RuntimeException('''Register «reg.name» has offset of «reg.addr». Must be multiple of «align»''')
+		}
+		if( reg.addr < nextOffset ){
+			throw new RuntimeException('''Registers «reg.name» must have increasing offset to previous register''')
+		}
+		if( reg.addr > nextOffset ){
+			val arraySize = (reg.addr - nextOffset) / align;
+			fillDummy( struct, arraySize, dummyIndex++ )
+		}
+		if( reg.addr + align > block.size ){
+			throw new RuntimeException('''Registers «reg.name» does not fit into block «block.name» with size «String::format("0x%X", block.size )»''')
+		}
+		nextOffset = reg.addr + align
+		for( const : reg.consts ){
+			addConstHex( '''«fieldFqn»_CONST_«const.name»''', const.value, 32 )
+		}
+		for( bits : reg.bits ){
+			handleBits( bits, reg.name, fieldFqn )
+		}
+		struct.fields.add(field)
+	}
+	
+	def private handleBits(RegisterBits bits, String regName, String fieldFqn ) {
+		val bitsName = '''«fieldFqn»_«bits.name»'''
+		val highBit = bits.range.left
+		val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
+		val width = highBit - lowBit +1
+		val mask = (( 1 << width ) - 1) << lowBit
+		
+		if( lowBit < 0 ){
+			throw new RuntimeException('''Registers «regName» bits «bits.name» low bit is negative''')
+		}
+		if( highBit > 31 ){
+			throw new RuntimeException('''Registers «regName» bits «bits.name» high bit is >31''')
+		}
+		if( highBit < lowBit ){
+			throw new RuntimeException('''Registers «regName» bits «bits.name» low bit > high bit''')
+		}
+		
+		addConst( '''«bitsName»_BITPOS''', lowBit )
+		addConst( '''«bitsName»_WIDTH''', width )
+		addConstHex( '''«bitsName»_MASK''', mask, width )
+		
+		for( const : bits.consts ){
+			addConstHex( '''«bitsName»_CONST_«const.name»''', const.value, width )
 		}
 	}
 	
@@ -219,16 +247,18 @@ class HwMapDslGenerator extends AbstractGenerator {
 	def private void addConst( String name, int value ){
 		val c = new Constant()
 		c.name = name
+		c.typeVhdl = '''integer'''
 		c.value = Integer.toString(value)
 		c.valueVhdl = Integer.toString(value)
 		constants.add(c)
 	}
 	
-	def private void addConstHex( String name, int value ){
+	def private void addConstHex( String name, int value, int bitWidth ){
 		val c = new Constant()
 		c.name = name
+		c.typeVhdl = '''std_logic_vector( «bitWidth-1» downto 0 )'''
 		c.value = String.format("0x%X", value)
-		c.valueVhdl = String.format("16#%X#", value)
+		c.valueVhdl = String.format("CONV_STD_LOGIC_VECTOR( 16#%X#, %d )", value, bitWidth )
 		constants.add(c)
 	}
 	
@@ -267,15 +297,15 @@ class HwMapDslGenerator extends AbstractGenerator {
 		fsa.generateFile(output.path, '''
 		package «id» is
 		  «FOR c:constants»
-		  constant «c.name» : integer := «c.valueVhdl»
+		  constant «c.name» : «c.typeVhdl» := «c.valueVhdl»;
 		  «ENDFOR»
 		
 		  «FOR s:vhdlInstSelects»
-		  IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic;
+		  function IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic;
 		  «ENDFOR»
 		
 		  «FOR s:vhdlRegisterSelects»
-		  IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic;
+		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic;
 		  «ENDFOR»
 		
 		end package «id»;
@@ -283,16 +313,18 @@ class HwMapDslGenerator extends AbstractGenerator {
 		package body «id» is
 		
 		  «FOR s:vhdlInstSelects»
-		  IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic is
+		  function IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic is
+		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
 		  begin
-		    return i_addr = x"«s.hexAddress»"( 15 downto «s.firstBit» ) and i_cyc = '1';
+		    return i_addr = addr( 15 downto «s.firstBit» ) and i_cyc = '1';
 		  end
 		  
 		  «ENDFOR»
 		  «FOR s:vhdlRegisterSelects»
-		  IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic is
+		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic is
+		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
 		  begin
-		    return i_addr = x"«s.hexAddress»"( «s.upperBit» downto 2 ) and i_cyc = '1';
+		    return i_addr = addr( «s.upperBit» downto 2 ) and i_cyc = '1';
 		  end
 		  
 		  «ENDFOR»

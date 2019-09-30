@@ -4,26 +4,17 @@
 package org.chabu.hwmap.tests
 
 import com.google.inject.Inject
-import com.google.inject.Injector
-import org.chabu.hwmap.generator.HwMapDslGenerator
-import org.chabu.hwmap.hwMapDsl.Component
 import org.chabu.hwmap.hwMapDsl.MemoryMap
-import org.chabu.hwmap.hwMapDsl.Output
-import org.eclipse.emf.common.util.URI
-import org.eclipse.emf.ecore.resource.Resource
+import org.eclipse.xtext.generator.IGenerator2
 import org.eclipse.xtext.generator.InMemoryFileSystemAccess
-import org.eclipse.xtext.resource.XtextResource
-import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
-import org.chabu.hwmap.HwMapDslStandaloneSetup
-import org.eclipse.xtext.generator.IGenerator2
-import static org.assertj.core.api.Assertions.*;
-import static org.eclipse.xtext.generator.IFileSystemAccess2.DEFAULT_OUTPUT
-import org.assertj.core.api.Assertions
+
+import static org.assertj.core.api.Assertions.*
+import static org.eclipse.xtext.generator.IFileSystemAccess.*
 
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)

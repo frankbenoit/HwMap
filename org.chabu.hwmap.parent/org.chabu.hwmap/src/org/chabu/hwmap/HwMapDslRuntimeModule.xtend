@@ -4,7 +4,6 @@
 package org.chabu.hwmap
 
 import org.eclipse.xtext.conversion.IValueConverterService
-import org.chabu.hwmap.generator.HwMapDslGenerator
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
