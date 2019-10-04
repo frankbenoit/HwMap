@@ -195,6 +195,26 @@ class HwMapDslValidationTest {
 		generateWithErrorContaining( result, "Unknown output mode D" )
 	}
 	
+	@Test
+	def void outputAbsolutePathNotAllowed() {
+		val result = parseNoErrors('''
+			Output C "c:\\\\one"
+			Component CapSim {
+			}
+		''')
+		generateWithErrorContaining( result, "Output path must be a relative path" )
+	}
+	
+	@Test
+	def void outputAbsolutePath2NotAllowed() {
+		val result = parseNoErrors('''
+			Output C "\\\\one"
+			Component CapSim {
+			}
+		''')
+		generateWithErrorContaining( result, "Output path must be a relative path" )
+	}
+	
 	def MemoryMap parseNoErrors(CharSequence text){
 		val result = parseHelper.parse(text);
 		Assertions.assertNotNull(result)

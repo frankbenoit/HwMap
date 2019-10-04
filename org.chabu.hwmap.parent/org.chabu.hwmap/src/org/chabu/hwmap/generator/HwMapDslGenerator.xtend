@@ -94,6 +94,10 @@ class HwMapDslGenerator extends AbstractGenerator {
 		constants.clear()
 		structs.clear()
 		
+		for( Output out : mm.outputs ){
+			handleOutput(out)
+		}
+			
 		for( comp : mm.components ){
 			val compStruct = new Struct
 			compStruct.name = comp.compName
@@ -110,6 +114,13 @@ class HwMapDslGenerator extends AbstractGenerator {
 			}
 			
 			structs.add(compStruct)
+		}
+	}
+	
+	def handleOutput(Output output) {
+		val path = Paths.get(output.path)
+		if( path.isAbsolute ){
+			throw new RuntimeException('''Output path must be a relative path. Not «path»''')
 		}
 	}
 	
@@ -268,6 +279,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 			.toUpperCase
 			.replaceAll("[.-]", "_")
 		
+		System.out.printf( "Write C header: %s%n", output.path )
 		fsa.generateFile(output.path, '''
 		#ifndef «id»
 		#define «id»
@@ -293,7 +305,8 @@ class HwMapDslGenerator extends AbstractGenerator {
 			.toLowerCase
 			.replaceAll("\\.vhd", "")
 			.replaceAll("[.-]", "_")
-		
+
+		System.out.printf( "Write VHDL package: %s%n", output.path )
 		fsa.generateFile(output.path, '''
 		package «id» is
 		  «FOR c:constants»

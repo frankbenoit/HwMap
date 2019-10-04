@@ -6,10 +6,14 @@ package org.chabu.hwmap.generator;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import org.chabu.hwmap.HwMapDslStandaloneSetup;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.generator.GeneratorContext;
 import org.eclipse.xtext.generator.GeneratorDelegate;
@@ -46,7 +50,9 @@ public class Main {
 	protected void runGenerator(String string) {
 		// Load the resource
 		ResourceSet set = resourceSetProvider.get();
-		Resource resource = set.getResource(URI.createFileURI(string), true);
+		URI fileURI = URI.createFileURI(string);
+		Path path = Paths.get(fileURI.toFileString()).toAbsolutePath();
+		Resource resource = set.getResource(fileURI, true);
 
 		// Validate the resource
 		List<Issue> list = validator.validate(resource, CheckMode.ALL, CancelIndicator.NullImpl);
@@ -54,15 +60,25 @@ public class Main {
 			for (Issue issue : list) {
 				System.err.println(issue);
 			}
+			System.exit(1);
 			return;
 		}
 
 		// Configure and start the generator
-		fileAccess.setOutputPath("src-gen/");
+		String outDir = path.getParent().toString();
+		System.out.println("Output directory: "+outDir);
+		fileAccess.setOutputPath(outDir);
 		GeneratorContext context = new GeneratorContext();
 		context.setCancelIndicator(CancelIndicator.NullImpl);
 		generator.generate(resource, fileAccess, context);
 
+		if( !resource.getErrors().isEmpty() ) {
+			for( Diagnostic e : resource.getErrors() ) {
+				System.err.printf("Error: %s%n", e.toString() );
+			}
+			System.exit(1);
+			return;
+		}
 		System.out.println("Code generation finished.");
 	}
 }
