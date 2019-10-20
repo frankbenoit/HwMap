@@ -32,7 +32,7 @@ class HwMapDslGeneratorCTest {
 	def void selfIncludeProtection() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithTextContaining( result, '''
@@ -45,7 +45,7 @@ class HwMapDslGeneratorCTest {
 	def void componentStruct() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithTextContaining( result, "struct CapSim {" )
@@ -55,7 +55,7 @@ class HwMapDslGeneratorCTest {
 	def void blockStruct() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 				}
 			}
@@ -67,7 +67,7 @@ class HwMapDslGeneratorCTest {
 	def void registerField() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 				}
@@ -80,7 +80,7 @@ class HwMapDslGeneratorCTest {
 	def void blockInstance() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 				}
@@ -94,7 +94,7 @@ class HwMapDslGeneratorCTest {
 	def void registerConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 						Constant 5 Start
@@ -108,7 +108,7 @@ class HwMapDslGeneratorCTest {
 	def void bitsConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 					[0] IRQ
@@ -123,7 +123,7 @@ class HwMapDslGeneratorCTest {
 	def void bitsSinglePosConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 					[3] IRQ
@@ -141,7 +141,7 @@ class HwMapDslGeneratorCTest {
 	def void bitsRangePosConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Reg 0x20 {
 					0x04 Control
 					[7..4] Command

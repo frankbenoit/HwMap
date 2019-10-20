@@ -69,22 +69,43 @@ class HwMapDslGenerator extends AbstractGenerator {
 		List<StructField> fields = new ArrayList
 	}
 	
+	private static class VhdlComp {
+		String name
+		int    addrIdxHi;
+		int    addrIdxLo;
+		val blocks = new ArrayList<VhdlBlock>();
+		val insts  = new ArrayList<VhdlInstSelect>();
+	}
+	
+	private static class VhdlBlock {
+		String compName
+		String name
+		int    addrIdxHi;
+		int    addrIdxLo;
+		val registers = new ArrayList<VhdlRegister>();
+	}
+	
 	private static class VhdlInstSelect {
 		String name
-		int firstBit;
+		String typeName
+		int    addrIdxHi;
+		int    addrIdxLo;
+		String addrBits;
+		String hexAddress;
+		VhdlBlock block;
+	}
+	
+	private static class VhdlRegister {
+		String name
+		String addrBits;
 		String hexAddress;
 	}
 	
-	private static class VhdlRegisterSelect {
-		String name
-		int upperBit;
-		String hexAddress;
-	}
+	val vhdlComps = new ArrayList<VhdlComp>();
+	var vhdlComp = new VhdlComp;
 	
 	val constants = new ArrayList<Constant>();
 	val structs = new ArrayList<Struct>();
-	val vhdlInstSelects = new ArrayList<VhdlInstSelect>();
-	val vhdlRegisterSelects = new ArrayList<VhdlRegisterSelect>();
 	val align = 4
 	var nextOffset = 0
 	var dummyIndex = 0
@@ -101,6 +122,20 @@ class HwMapDslGenerator extends AbstractGenerator {
 		for( comp : mm.components ){
 			val compStruct = new Struct
 			compStruct.name = comp.compName
+			
+			vhdlComp = new VhdlComp()
+			vhdlComps.add(vhdlComp)
+			vhdlComp.name = comp.compName
+						
+			if( comp.size % align != 0 ){
+				throw new RuntimeException('''Component «comp.compName» has non-aligned size of «comp.size».''')
+			}
+			if( Integer::bitCount(comp.size) != 1 ){
+				throw new RuntimeException('''Component «comp.compName» has non-power-2 size''')
+				
+			}
+			vhdlComp.addrIdxHi = Integer::numberOfTrailingZeros(comp.size)-1
+			
 			
 			for( block : comp.blocks ){
 				handleBlock( block, comp )
@@ -119,7 +154,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 	
 	def handleOutput(Output output) {
 		val path = Paths.get(output.path)
-		if( path.isAbsolute ){
+		if( path.root !== null ){
 			throw new RuntimeException('''Output path must be a relative path. Not «path»''')
 		}
 	}
@@ -135,10 +170,15 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 		if( Integer::bitCount(block.size) != 1 ){
 			throw new RuntimeException('''Block «block.name» has non-power-2 size''')
-			
 		}
+		val vhdlBlock = new VhdlBlock()
+		vhdlBlock.name = block.name
+		vhdlBlock.addrIdxHi = Integer::numberOfTrailingZeros(block.size)-1
+		vhdlBlock.addrIdxLo = 2
+		vhdlComp.blocks.add(vhdlBlock)
+		
 		for( reg : block.regs ){
-			handleRegister( reg, struct.name, block, struct )
+			handleRegister( reg, struct.name, block, struct, vhdlBlock )
 		}
 		val fillSize = (struct.size - nextOffset) / align;
 		if( fillSize > 0 ) {
@@ -146,6 +186,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 		
 		structs.add(struct)
+
 	}
 	
 	def private handleInstance(Instantiation inst, Struct compStruct, Component comp ) {
@@ -175,25 +216,38 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 		
 		val vhdlInstSelect = new VhdlInstSelect()
-		vhdlInstSelect.firstBit = Integer::numberOfTrailingZeros(block.size)
+		vhdlInstSelect.addrIdxHi = vhdlComp.addrIdxHi
+		vhdlInstSelect.addrIdxLo =  Integer::numberOfTrailingZeros(block.size)
+		vhdlInstSelect.addrBits = bitsFromInt( inst.addr, vhdlInstSelect.addrIdxHi, vhdlInstSelect.addrIdxLo )
 		vhdlInstSelect.hexAddress = String::format("%04X", inst.addr)
-		vhdlInstSelect.name = '''«compStruct.name»_«inst.name»'''
-		vhdlInstSelects.add(vhdlInstSelect)
+		vhdlInstSelect.name = inst.name
+		vhdlInstSelect.typeName = inst.type
+		vhdlInstSelect.block = vhdlComp.blocks.findFirst[ t | t.name == inst.type ]		
+		vhdlComp.insts.add(vhdlInstSelect)
 		
 		nextOffset += block.size
 	}
 	
-	def private handleRegister(Register reg, String structName, Block block, Struct struct ) {
+	def private String bitsFromInt( int value, int idxHi, int idxLo ){
+		val sb = new StringBuilder
+		for( var i = idxHi; i >= idxLo; i-- ) {
+			val bitMask = (1<<i) as int
+			val bitVal = bitMask.bitwiseAnd(value) != 0
+			sb.append( bitVal ? '1' : '0')
+		}
+		return sb.toString
+	}
+	def private handleRegister(Register reg, String structName, Block block, Struct struct, VhdlBlock vhdlBlock ) {
 		val field = new StructField
 		val fieldFqn = '''«structName»_«reg.name»'''
 		field.name = reg.name
 		field.type = 'uint32'
 		
-		val vhdlRegisterSelect = new VhdlRegisterSelect()
-		vhdlRegisterSelect.upperBit = Integer::numberOfTrailingZeros(block.size)-1
-		vhdlRegisterSelect.hexAddress = String::format("%04X", reg.addr)
-		vhdlRegisterSelect.name = fieldFqn
-		vhdlRegisterSelects.add(vhdlRegisterSelect)
+		val vhdlRegister = new VhdlRegister()
+		vhdlRegister.addrBits = bitsFromInt( reg.addr, vhdlBlock.addrIdxHi, vhdlBlock.addrIdxLo );
+		vhdlRegister.hexAddress = String::format("%04X", reg.addr)
+		vhdlRegister.name = reg.name
+		vhdlBlock.registers.add(vhdlRegister)
 			
 		
 		if( reg.addr % align != 0 ){
@@ -308,41 +362,88 @@ class HwMapDslGenerator extends AbstractGenerator {
 
 		System.out.printf( "Write VHDL package: %s%n", output.path )
 		fsa.generateFile(output.path, '''
-		package «id» is
+		package «id»_pck is
+		
 		  «FOR c:constants»
 		  constant «c.name» : «c.typeVhdl» := «c.valueVhdl»;
 		  «ENDFOR»
-		
-		  «FOR s:vhdlInstSelects»
-		  function IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic;
+		  «FOR c:vhdlComps»
+		  «FOR b:c.blocks»
+		  type Block_«c.name»_«b.name»_Selection is record
+		    UnmappedSelection : std_logic;
+		    «FOR r:b.registers»
+		 «"    "»Selected_«r.name» : std_logic;
+		    «ENDFOR»
+		  end record;
+
 		  «ENDFOR»
-		
-		  «FOR s:vhdlRegisterSelects»
-		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic;
+		  type Comp_«c.name»_Selection is record
+		    «FOR b:c.blocks»
+		    Block_«b.name» : Block_«c.name»_«b.name»_Selection;
+		    «ENDFOR»
+		    UnmappedSelection : std_logic;
+		    «FOR i:c.insts»
+		 «"    "»Selected_«i.name» : std_logic;
+		    «ENDFOR»
+		  end record;
+
 		  «ENDFOR»
+«««		  «FOR s:vhdlRegisterSelects»
+«««		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic;
+«««		  «ENDFOR»
+		end package «id»_pck;
 		
-		end package «id»;
+«««		  «FOR s:vhdlInstSelects»
+«««		  function IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic is
+«««		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
+«««		  begin
+«««		    return i_addr = addr( 15 downto «s.firstBit» ) and i_cyc = '1';
+«««		  end
+«««		  
+«««		  «ENDFOR»
+«««		  «FOR s:vhdlRegisterSelects»
+«««		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic is
+«««		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
+«««		  begin
+«««		    return i_addr = addr( «s.upperBit» downto 2 ) and i_cyc = '1';
+«««		  end
+«««		  
+«««		  «ENDFOR»
+		«FOR c:vhdlComps»
+		library IEEE;
+		use IEEE.STD_LOGIC_1164.ALL;
+
+		entity «id»_Decoder_«c.name» is
+		  Port (
+		    addr  : in std_logic_vector( «c.addrIdxHi» downto 0 );
+		    cycle : in std_logic;
+		    selection : out work.«id»_pck.Comp_«c.name»_Selection );
+		end out_Decoder_CapSim;
 		
-		package body «id» is
-		
-		  «FOR s:vhdlInstSelects»
-		  function IsInst_«s.name»_Selected( i_addr : in std_logic_vector( 15 downto «s.firstBit» ), i_cyc : in std_logic ) return std_logic is
-		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
-		  begin
-		    return i_addr = addr( 15 downto «s.firstBit» ) and i_cyc = '1';
-		  end
-		  
+		architecture Behavioral of «id»_Decoder_«c.name» is
+		  signal res : work.«id»_pck.Comp_«c.name»_Selection;
+		begin
+		  selection <= res;
+		  res.UnmappedSelection <= '1' when
+		    cycle = '1' else '0';
+		  «FOR b:c.blocks»
+		  «FOR r:b.registers»
+		  res.Block_«b.name».Selected_«r.name» <= '1' when
+		    addr( «b.addrIdxHi» downto «b.addrIdxLo» ) = "«r.addrBits»" and
+		    cycle = '1' else '0';
 		  «ENDFOR»
-		  «FOR s:vhdlRegisterSelects»
-		  function IsRegister_«s.name»_Selected( i_addr : in std_logic_vector( «s.upperBit» downto 2 ), i_cyc : in std_logic ) return std_logic is
-		    constant addr : std_logic_vector( 15 downto 0 ) := x"«s.hexAddress»";
-		  begin
-		    return i_addr = addr( «s.upperBit» downto 2 ) and i_cyc = '1';
-		  end
-		  
+		  res.Block_RegDecl.UnmappedSelection <= '1' when
+		    «FOR r:b.registers»
+		    res.Block_«b.name».Selected_«r.name» = '0' and
+		    «ENDFOR»
+		    cycle = '1' else '0';
 		  «ENDFOR»
-		end package body «id»;
-		«FOR s:structs»
+		  «FOR i:c.insts»
+		  res.Selected_«i.name» <= '1' when
+		    addr( «i.addrIdxHi» downto «i.addrIdxLo» ) = "«i.addrBits»" and
+		    cycle = '1' else '0';
+		  «ENDFOR»
+		end Behavioral;
 		«ENDFOR»
 		''');
 	}

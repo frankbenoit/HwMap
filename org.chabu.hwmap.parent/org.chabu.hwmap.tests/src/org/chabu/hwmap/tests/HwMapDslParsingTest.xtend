@@ -35,7 +35,7 @@ class HwMapDslParsingTest {
 			Output VHDL "../relpath/out.vhd"
 			Output C    "../relpath/out.h"
 			
-			Component CapSim {
+			Component CapSim 0x400 {
 				
 				// Register block for the main control
 				Block Regs 0x20 {
@@ -73,6 +73,7 @@ class HwMapDslParsingTest {
 		
 		val comp = result.components.get(0) as Component
 		Assertions.assertEquals("CapSim", comp.compName );
+		Assertions.assertEquals( 0x400, comp.size );
 
 		val reg = comp.blocks.get(0)
 		Assertions.assertEquals("Regs", reg.name );

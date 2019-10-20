@@ -13,6 +13,8 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
+import java.nio.file.Paths
+import static org.junit.Assert.assertTrue
 
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)
@@ -28,7 +30,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void blockSizeAligned() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x21 {
 				}
 			}
@@ -37,9 +39,29 @@ class HwMapDslValidationTest {
 	}
 	
 	@Test
+	def void compSizeAligned() {
+		val result = parseNoErrors('''
+			Component CapSim 0x401 {
+				Block Regs 0x20 {
+				}
+			}
+		''')
+		generateWithErrorContaining( result, "Component CapSim has non-aligned size" )
+	}
+	
+	@Test
+	def void compSizePower2() {
+		val result = parseNoErrors('''
+			Component CapSim 0x300 {
+			}
+		''')
+		generateWithErrorContaining( result, "Component CapSim has non-power-2 size" )
+	}
+	
+	@Test
 	def void blockSizePower2() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x30 {
 				}
 			}
@@ -50,7 +72,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void instOffsetAligned() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 				}
 				0x003 Regs Regs
@@ -62,7 +84,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void instCannotResolveBlock() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 				}
 				0x0 Rock Regs
@@ -74,7 +96,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void instOffsetIncreasing() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 				}
 				0x000 Regs Regs
@@ -87,7 +109,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void instOffsetBinaryAligned() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 				}
 				0x010 Regs Regs
@@ -99,7 +121,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void registerOffsetAligned() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x03 Control
 				}
@@ -111,7 +133,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void registerOffsetIncreasing() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x04 Control
 					0x04 Control2
@@ -124,7 +146,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void registerFitsInBlock() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x20 Control2
 				}
@@ -136,7 +158,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void bitsPosSingleNegative() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x04 Control
 						[-1] IRQ
@@ -149,7 +171,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void bitsPosSingleTooBig() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x04 Control
 						[32] IRQ
@@ -162,7 +184,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void bitsPosRangeTooBig() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x04 Control
 						[32..0] IRQ
@@ -175,7 +197,7 @@ class HwMapDslValidationTest {
 	@Test
 	def void bitsPosRangeInvalid() {
 		val result = parseNoErrors('''
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block Regs 0x20 {
 					0x04 Control
 						[7..12] IRQ
@@ -189,7 +211,7 @@ class HwMapDslValidationTest {
 	def void outputModeInvalid() {
 		val result = parseNoErrors('''
 			Output D "one"
-			Component CapSim {
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithErrorContaining( result, "Unknown output mode D" )
@@ -198,18 +220,31 @@ class HwMapDslValidationTest {
 	@Test
 	def void outputAbsolutePathNotAllowed() {
 		val result = parseNoErrors('''
-			Output C "c:\\\\one"
-			Component CapSim {
+			Output C "c:\\one"
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithErrorContaining( result, "Output path must be a relative path" )
 	}
 	
 	@Test
+	def void pathProperties() {
+		// path is only absolute on windows when it has a drive letter
+		// a path starting with \ is not absolute (still relative to actual drive), but Path has root == null
+		assertTrue( !Paths.get("..\\file").isAbsolute );
+		assertTrue( !Paths.get("\\file").isAbsolute );
+		assertTrue( Paths.get("c:\\file").isAbsolute );
+		Assertions.assertNull( Paths.get("..\\file").root );
+		Assertions.assertNotNull( Paths.get("c:\\file").root );
+		Assertions.assertNotNull( Paths.get("\\file").root );
+		//assertTrue( Paths.get("\\file") );
+	}
+	
+	@Test
 	def void outputAbsolutePath2NotAllowed() {
 		val result = parseNoErrors('''
-			Output C "\\\\one"
-			Component CapSim {
+			Output C "\\one"
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithErrorContaining( result, "Output path must be a relative path" )
@@ -230,8 +265,8 @@ class HwMapDslValidationTest {
 	
 	def assertHasErrorContaining(MemoryMap result, String text) {
 		val errors = result.eResource.errors
-		Assertions.assertEquals(1, errors.size(), '''Unexpected errors: «errors.join(", ")»''')
-		Assertions.assertTrue( errors.get(0).message.contains(text), '''Unexpected errors: «errors.join(", ")»''')
+		Assertions.assertEquals(1, errors.size(), '''Unexpected count 1 vs actual «errors.size()», errors: «errors.join(", ")»''')
+		Assertions.assertTrue( errors.get(0).message.contains(text), '''Unexpected errors: «errors.join(", ")» is not containing «text»''')
 	}
 
 	def assertNoErrors(MemoryMap result) {

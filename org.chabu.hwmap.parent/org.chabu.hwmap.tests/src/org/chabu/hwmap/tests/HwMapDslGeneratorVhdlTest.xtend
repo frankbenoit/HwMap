@@ -10,12 +10,16 @@ import org.eclipse.xtext.generator.InMemoryFileSystemAccess
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.extensions.InjectionExtension
 import org.eclipse.xtext.testing.util.ParseHelper
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.^extension.ExtendWith
 
 import static org.assertj.core.api.Assertions.*
 import static org.eclipse.xtext.generator.IFileSystemAccess.*
 
+@TestMethodOrder(OrderAnnotation)
 @ExtendWith(InjectionExtension)
 @InjectWith(HwMapDslInjectorProvider)
 class HwMapDslGeneratorVhdlTest {
@@ -27,91 +31,203 @@ class HwMapDslGeneratorVhdlTest {
 	
 	InMemoryFileSystemAccess fsa = new InMemoryFileSystemAccess();
 
+	@Order(1)
 	@Test
 	def void packageDeclaration() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
+		''')
+		generateWithTextContaining( result, '''
+		package out_pck is
+		
+		end package out_pck;
+		''' )
+	}
+	
+	@Order(2)
+	@Test
+	def void compDeclRecord() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithTextContaining( result, '''
-		package out is
-		
-		
-		
-		end package out;
-		
-		package body out is
-		
-		end package body out;
+		«"  "»type Comp_CapSim_Selection is record
+		«"  "»  UnmappedSelection : std_logic;
+		«"  "»end record;
 		''' )
 	}
 	
+	@Order(3)
 	@Test
-	def void instanceSelectDecl() {
+	def void compDecoderDecl() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
-				Block RegDecl 0x20 {
-				}
-				0x40 RegDecl Reg
-			}
-		''')
-		generateWith2TextContaining( result, '''
-		IsInst_CapSim_Reg_Selected( i_addr : in std_logic_vector( 15 downto 5 ), i_cyc : in std_logic ) return std_logic;
-		''', '''
-		IsInst_CapSim_Reg_Selected( i_addr : in std_logic_vector( 15 downto 5 ), i_cyc : in std_logic ) return std_logic is
-		''' )
-	}
-	
-	@Test
-	def void instanceSelectEval() {
-		val result = parseNoErrors('''
-			Output VHDL "out.vhd"
-			Component CapSim {
-				Block RegDecl 0x20 {
-				}
-				0x40 RegDecl Reg
+			Component CapSim 0x400 {
 			}
 		''')
 		generateWithTextContaining( result, '''
-		  «"  "»  constant addr : std_logic_vector( 15 downto 0 ) := x"0040";
-		  «"  "»begin
-		  «"  "»  return i_addr = addr( 15 downto 5 ) and i_cyc = '1';
+		entity out_Decoder_CapSim is
+		  Port (
+		    addr  : in std_logic_vector( 9 downto 0 );
+		    cycle : in std_logic;
+		    selection : out work.out_pck.Comp_CapSim_Selection );
+		end out_Decoder_CapSim;
+		
+		architecture Behavioral of out_Decoder_CapSim is
+		  signal res : work.out_pck.Comp_CapSim_Selection;
+		begin
+		  selection <= res;
+		  res.UnmappedSelection <= '1' when
+		    cycle = '1' else '0';
+		end Behavioral;
 		''' )
 	}
 	
+	@Order(3)
 	@Test
-	def void registerSelectDecl() {
+	def void compDecoderImpl() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
+			Component CapSim 0x400 {
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«  »entity out_Decoder_CapSim is
+		«  »  Port (
+		«  »    addr  : in std_logic_vector( 9 downto 0 );
+		«  »    cycle : in std_logic;
+		«  »    selection : out work.out_pck.Comp_CapSim_Selection );
+		«  »end out_Decoder_CapSim;
+		''' )
+	}
+	
+	@Order(10)
+	@Test
+	def void blockRecord() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block Registers 0x20 {
+					0x008 Control
+				}
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»type Block_CapSim_Registers_Selection is record
+		«"  "»  UnmappedSelection : std_logic;
+		«"  "»  Selected_Control : std_logic;
+		«"  "»end record;
+		
+		«"  "»type Comp_CapSim_Selection is record
+		«"  "»  Block_Registers : Block_CapSim_Registers_Selection;
+		«"  "»  UnmappedSelection : std_logic;
+		«"  "»end record;
+		''' )
+	}
+	
+	@Order(11)
+	@Test
+	def void instDecl() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block Registers 0x20 {
+					0x008 Control
+				}
+				0x100 Registers Reg1
+				0x200 Registers Reg2
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»type Comp_CapSim_Selection is record
+		«"  "»  Block_Registers : Block_CapSim_Registers_Selection;
+		«"  "»  UnmappedSelection : std_logic;
+		«"  "»  Selected_Reg1 : std_logic;
+		«"  "»  Selected_Reg2 : std_logic;
+		«"  "»end record;
+		''' )
+	}
+	
+	@Order(12)
+	@Test
+	def void registerSelectSignal() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
 				Block RegDecl 0x20 {
 					0x04 Control
+					0x08 Status
 				}
 			}
 		''')
-		generateWith2TextContaining( result, '''
-		function IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic;
-		''', '''
-		function IsRegister_CapSim_RegDecl_Control_Selected( i_addr : in std_logic_vector( 4 downto 2 ), i_cyc : in std_logic ) return std_logic is
+		generateWithTextContaining( result, '''
+		«"  "»  UnmappedSelection : std_logic;
+		«"  "»  Selected_Control : std_logic;
+		«"  "»  Selected_Status : std_logic;
 		''' )
 	}
 	
+	@Order(13)
 	@Test
 	def void registerSelectEval() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block RegDecl 0x20 {
 					0x04 Control
+					0x08 Status
 				}
+				0x100 RegDecl Regs
 			}
 		''')
 		generateWithTextContaining( result, '''
-		«"  "»  constant addr : std_logic_vector( 15 downto 0 ) := x"0004";
-		«"  "»begin
-		«"  "»  return i_addr = addr( 4 downto 2 ) and i_cyc = '1';
+		«"  "»res.Block_RegDecl.Selected_Control <= '1' when
+		«"  "»  addr( 4 downto 2 ) = "001" and
+		«"  "»  cycle = '1' else '0';
+		«"  "»res.Block_RegDecl.Selected_Status <= '1' when
+		«"  "»  addr( 4 downto 2 ) = "010" and
+		«"  "»  cycle = '1' else '0';
+		''' )
+	}
+	
+	@Order(14)
+	@Test
+	def void registerUnmappedSelectionEval() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block RegDecl 0x20 {
+					0x04 Control
+					0x08 Status
+				}
+				0x100 RegDecl Regs
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»res.Block_RegDecl.UnmappedSelection <= '1' when
+		«"  "»  res.Block_RegDecl.Selected_Control = '0' and
+		«"  "»  res.Block_RegDecl.Selected_Status = '0' and
+		«"  "»  cycle = '1' else '0';
+		''' )
+	}
+	
+	@Order(15)
+	@Test
+	def void blockSelectEval() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block RegDecl 0x20 {
+				}
+				0x100 RegDecl Regs
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»res.Selected_Regs <= '1' when
+		«"  "»  addr( 9 downto 5 ) = "01000" and
+		«"  "»  cycle = '1' else '0';
 		''' )
 	}
 	
@@ -119,7 +235,7 @@ class HwMapDslGeneratorVhdlTest {
 	def void registerConst() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block RegDecl 0x20 {
 					0x04 Control
 						Constant 0x123 C2
@@ -133,7 +249,7 @@ class HwMapDslGeneratorVhdlTest {
 	def void bitsConst() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
-			Component CapSim {
+			Component CapSim 0x400 {
 				Block RegDecl 0x20 {
 					0x04 Control
 						[7..4] Cmd

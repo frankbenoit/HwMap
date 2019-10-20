@@ -3,14 +3,12 @@
  */
 package org.chabu.hwmap.ui.contentassist
 
+import org.chabu.hwmap.hwMapDsl.Component
+import org.chabu.hwmap.hwMapDsl.Instantiation
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.xtext.RuleCall
+import org.eclipse.xtext.Assignment
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
-import org.eclipse.xtext.Assignment
-import org.chabu.hwmap.hwMapDsl.MemoryMap
-import org.chabu.hwmap.hwMapDsl.Instantiation
-import org.chabu.hwmap.hwMapDsl.Component
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/304_ide_concepts.html#content-assist
