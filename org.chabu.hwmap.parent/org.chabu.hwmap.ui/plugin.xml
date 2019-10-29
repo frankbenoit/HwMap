@@ -258,11 +258,60 @@
 			<keywordReference id="org.chabu.hwmap.ui.keyword_HwMapDsl"/>
 		</page>
 	</extension>
+	<!--
 	<extension point="org.eclipse.xtext.builder.participant">
 		<participant
 			class="org.chabu.hwmap.ui.HwMapDslExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
 			fileExtensions="hwmap"/>
 	</extension>
+	-->
+	
+	
+	
+	
+	<extension
+		point="org.eclipse.ui.handlers">
+		
+		<handler
+			class="org.chabu.hwmap.ui.HwMapDslExecutableExtensionFactory:org.chabu.hwmap.ui.handler.GenerationHandler"
+			commandId="org.chabu.hwmap.ui.handler.GenerationCommand">
+		</handler>
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.commands">
+		<command name="HW-Map Generate Code"
+			id="org.chabu.hwmap.ui.handler.GenerationCommand">
+		</command>
+	</extension>
+	
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+			<command
+				commandId="org.chabu.hwmap.ui.handler.GenerationCommand"
+				style="push">
+				<visibleWhen
+					checkEnabled="false">
+					<iterate>
+						<adapt type="org.eclipse.core.resources.IResource">
+							<test property="org.eclipse.core.resources.name" 
+								value="*.hwmap"/>
+						</adapt>
+					</iterate>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+
+
+
+
+
+
+
+
+
+	
 	<extension point="org.eclipse.ui.preferencePages">
 		<page
 			category="org.chabu.hwmap.HwMapDsl"
