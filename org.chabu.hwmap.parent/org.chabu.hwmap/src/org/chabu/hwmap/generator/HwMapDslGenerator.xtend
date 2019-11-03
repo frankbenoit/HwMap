@@ -37,12 +37,8 @@ class HwMapDslGenerator extends AbstractGenerator {
 				prepareData(mm)
 				for( output : mm.outputs ){
 					switch output.mode {
-						case 'C':
-							generateC( mm, fsa, output )
-						case 'VHDL':
-							generateVhdl( mm, fsa, output )
-						default:
-							throw new RuntimeException('''Unknown output mode «output.mode».''')
+						case 'C': generateC( mm, fsa, output )
+						case 'VHDL': generateVhdl( mm, fsa, output )
 					}
 				}
 					
@@ -112,33 +108,20 @@ class HwMapDslGenerator extends AbstractGenerator {
 		
 		constants.clear()
 		structs.clear()
+		vhdlComps.clear()
 		
-		for( Output out : mm.outputs ){
-			handleOutput(out)
-		}
-			
 		for( comp : mm.components ){
 			val compStruct = new Struct
-			compStruct.name = comp.compName
+			compStruct.name = comp.name
 			
 			vhdlComp = new VhdlComp()
 			vhdlComps.add(vhdlComp)
-			vhdlComp.name = comp.compName
-						
-			if( comp.size % align != 0 ){
-				throw new RuntimeException('''Component «comp.compName» has non-aligned size of «comp.size».''')
-			}
-			if( Integer::bitCount(comp.size) != 1 ){
-				throw new RuntimeException('''Component «comp.compName» has non-power-2 size''')
-				
-			}
+			vhdlComp.name = comp.name
 			vhdlComp.addrIdxHi = Integer::numberOfTrailingZeros(comp.size)-1
-			
 			
 			for( block : comp.blocks ){
 				handleBlock( block, comp )
 			}
-			
 
 			dummyIndex = 0
 			nextOffset = 0
@@ -150,25 +133,12 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 	}
 	
-	def handleOutput(Output output) {
-		val path = Paths.get(output.path)
-		if( path.root !== null ){
-			throw new RuntimeException('''Output path must be a relative path. Not «path»''')
-		}
-	}
-	
 	def private handleBlock(Block block, Component comp) {
 		dummyIndex = 0
 		nextOffset = 0
 		val struct = new Struct
-		struct.name = '''«comp.compName»_«block.name»'''
+		struct.name = '''«comp.name»_«block.name»'''
 		struct.size = block.size
-		if( block.size % align != 0 ){
-			throw new RuntimeException('''Block «block.name» has non-aligned size of «block.size».''')
-		}
-		if( Integer::bitCount(block.size) != 1 ){
-			throw new RuntimeException('''Block «block.name» has non-power-2 size''')
-		}
 		val vhdlBlock = new VhdlBlock()
 		vhdlBlock.name = block.name
 		vhdlBlock.addrIdxHi = Integer::numberOfTrailingZeros(block.size)-1
@@ -190,28 +160,15 @@ class HwMapDslGenerator extends AbstractGenerator {
 	def private handleInstance(Instantiation inst, Struct compStruct, Component comp ) {
 		val field = new StructField
 		field.name = '''«inst.name»'''
-		field.type = '''struct «compStruct.name»_«inst.type»'''
+		field.type = '''struct «compStruct.name»_«inst.type.name»'''
 	
-		if( inst.addr % align != 0 ){
-			throw new RuntimeException('''Instance «field.name» has non-aligned offset of «inst.addr».''')
-		}
-
 		val fillSize = (inst.addr - nextOffset) / align;
-		if( fillSize < 0 ){
-			throw new RuntimeException('''Instance «field.name» has no increasing offset. Minimum expected offset is «String::format("0x%X", nextOffset)»''')
-		}
 		if( fillSize > 0 ){
 			fillDummy( compStruct, fillSize, dummyIndex++ )
 			nextOffset = inst.addr
 		}
 		compStruct.fields.add(field)
-		val block = comp.blocks.findFirst[b| b.name == inst.type];
-		if( block === null ){
-			throw new RuntimeException('''Block instance type «compStruct.name» «inst.type» cannot be resolved.''')
-		}
-		if( inst.addr % block.size != 0 ){
-			throw new RuntimeException('''Block instance «inst.name» at address «inst.addr» is not multiple of block size «block.size».''')
-		}
+		val block = inst.type;
 		
 		val vhdlInstSelect = new VhdlInstSelect()
 		vhdlInstSelect.addrIdxHi = vhdlComp.addrIdxHi
@@ -244,18 +201,9 @@ class HwMapDslGenerator extends AbstractGenerator {
 		vhdlBlock.registers.add(vhdlRegister)
 			
 		
-		if( reg.addr % align != 0 ){
-			throw new RuntimeException('''Register «reg.name» has offset of «reg.addr». Must be multiple of «align»''')
-		}
-		if( reg.addr < nextOffset ){
-			throw new RuntimeException('''Registers «reg.name» must have increasing offset to previous register''')
-		}
 		if( reg.addr > nextOffset ){
 			val arraySize = (reg.addr - nextOffset) / align;
 			fillDummy( struct, arraySize, dummyIndex++ )
-		}
-		if( reg.addr + align > block.size ){
-			throw new RuntimeException('''Registers «reg.name» does not fit into block «block.name» with size «String::format("0x%X", block.size )»''')
 		}
 		nextOffset = reg.addr + align
 		for( const : reg.consts ){
@@ -273,16 +221,6 @@ class HwMapDslGenerator extends AbstractGenerator {
 		val lowBit = ( bits.range.right !== null ) ? bits.range.right : bits.range.left
 		val width = highBit - lowBit +1
 		val mask = (( 1 << width ) - 1) << lowBit
-		
-		if( lowBit < 0 ){
-			throw new RuntimeException('''Registers «regName» bits «bits.name» low bit is negative''')
-		}
-		if( highBit > 31 ){
-			throw new RuntimeException('''Registers «regName» bits «bits.name» high bit is >31''')
-		}
-		if( highBit < lowBit ){
-			throw new RuntimeException('''Registers «regName» bits «bits.name» low bit > high bit''')
-		}
 		
 		addConst( '''«bitsName»_BITPOS''', lowBit )
 		addConst( '''«bitsName»_WIDTH''', width )

@@ -72,7 +72,7 @@ class HwMapDslParsingTest {
 		Assertions.assertEquals("../relpath/out.vhd", out.path );
 		
 		val comp = result.components.get(0) as Component
-		Assertions.assertEquals("CapSim", comp.compName );
+		Assertions.assertEquals("CapSim", comp.name );
 		Assertions.assertEquals( 0x400, comp.size );
 
 		val reg = comp.blocks.get(0)
@@ -109,12 +109,12 @@ class HwMapDslParsingTest {
 		
 		val instReg = comp.insts.get(0);
 		Assertions.assertEquals(0x0000, instReg.addr );
-		Assertions.assertEquals("Regs", instReg.type );
+		Assertions.assertEquals("Regs", instReg.type.name );
 		Assertions.assertEquals(null, instReg.name );
 		
 		val instMem = comp.insts.get(1);
 		Assertions.assertEquals(0x1000, instMem.addr );
-		Assertions.assertEquals("TraceMem", instMem.type );
+		Assertions.assertEquals("TraceMem", instMem.type.name );
 		Assertions.assertEquals("TraceMem_A", instMem.name );
 		
 		generator.doGenerate( result.eResource, fsa, null );

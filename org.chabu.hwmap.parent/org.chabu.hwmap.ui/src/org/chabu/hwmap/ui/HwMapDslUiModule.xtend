@@ -3,22 +3,17 @@
  */
 package org.chabu.hwmap.ui
 
-import org.eclipse.core.commands.AbstractHandler
-import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 import org.chabu.hwmap.ui.handler.GenerationHandler
-import com.google.inject.Binder
+import org.eclipse.xtend.lib.annotations.FinalFieldsConstructor
 
 /**
  * Use this class to register components to be used within the Eclipse IDE.
  */
 @FinalFieldsConstructor
 class HwMapDslUiModule extends AbstractHwMapDslUiModule {
-	def configureUiGenerationHandler(Binder binder){
-		binder.bind(GenerationHandler)
+	
+	def Class<? extends GenerationHandler> bindUiGenerationHandler() {
+		return GenerationHandler;
 	}
-		// contributed by org.eclipse.xtext.xtext.generator.parser.antlr.XtextAntlrGeneratorFragment2
-//	def Class<? extends AbstractHandler> bindUiGenerationHandler() {
-//		return GenerationHandler;
-//	}
 	
 }

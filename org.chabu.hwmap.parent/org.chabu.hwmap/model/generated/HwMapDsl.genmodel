@@ -15,14 +15,14 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Output/path"/>
     </genClasses>
     <genClasses ecoreClass="HwMapDsl.ecore#//Component">
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Component/compName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Component/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Component/size"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference HwMapDsl.ecore#//Component/blocks"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference HwMapDsl.ecore#//Component/insts"/>
     </genClasses>
     <genClasses ecoreClass="HwMapDsl.ecore#//Instantiation">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Instantiation/addr"/>
-      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Instantiation/type"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference HwMapDsl.ecore#//Instantiation/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute HwMapDsl.ecore#//Instantiation/name"/>
     </genClasses>
     <genClasses ecoreClass="HwMapDsl.ecore#//Block">

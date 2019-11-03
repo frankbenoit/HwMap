@@ -17,14 +17,14 @@ Output:
 
 Component:
 	{Component}
-	'Component' compName=ID size=IntegerLiteral '{' 
+	'Component' name=ID size=IntegerLiteral '{' 
 	( blocks+=Block | insts+=Instantiation )*
 	'}'	
 ;
 
 Instantiation:
 	{Instantiation}
-	addr=IntegerLiteral type=ID name=ID?
+	addr=IntegerLiteral type=[Block] name=ID?
 ;
 
 Block:
