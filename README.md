@@ -1,6 +1,8 @@
 # HwMap
 Tool to define the memory interface between memory mapped hardware and C code
 
+To install this Eclipse plugin, use this link as the update site: https://raw.githubusercontent.com/frankbenoit/HwMap.p2/master/repository
+
 The user writes a description (.hwmap) of the memory addresses and registers, that will build the API between an FPGA design and the C code accessing it.
 
 This .hwmap file can also be seen as a documentation.
