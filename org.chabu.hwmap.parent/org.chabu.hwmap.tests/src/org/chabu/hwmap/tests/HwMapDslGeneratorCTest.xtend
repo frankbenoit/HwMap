@@ -91,6 +91,20 @@ class HwMapDslGeneratorCTest {
 	}
 	
 	@Test
+	def void blockInstanceWithoutName() {
+		val result = parseNoErrors('''
+			Output C "out.h"
+			Component CapSim 0x400 {
+				Block Reg 0x20 {
+					0x04 Control
+				}
+				0x00 Reg
+			}
+		''')
+		generateWithTextContaining( result, "struct CapSim_Reg Reg;" )
+	}
+	
+	@Test
 	def void registerConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
@@ -131,14 +145,15 @@ class HwMapDslGeneratorCTest {
 			}
 		''')
 		generateWithTextContaining( result, '''
-		#define CapSim_Reg_Control_IRQ_BITPOS 3
+		#define CapSim_Reg_Control_IRQ_LSB 3
+		#define CapSim_Reg_Control_IRQ_MSB 3
 		#define CapSim_Reg_Control_IRQ_WIDTH 1
 		#define CapSim_Reg_Control_IRQ_MASK 0x8
 		''' )
 	}
 	
 	@Test
-	def void bitsRangePosConst() {
+	def void bitsRangeConst() {
 		val result = parseNoErrors('''
 			Output C "out.h"
 			Component CapSim 0x400 {
@@ -149,7 +164,8 @@ class HwMapDslGeneratorCTest {
 			}
 		''')
 		generateWithTextContaining( result, '''
-		#define CapSim_Reg_Control_Command_BITPOS 4
+		#define CapSim_Reg_Control_Command_LSB 4
+		#define CapSim_Reg_Control_Command_MSB 7
 		#define CapSim_Reg_Control_Command_WIDTH 4
 		#define CapSim_Reg_Control_Command_MASK 0xF0
 		''' )

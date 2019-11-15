@@ -4,6 +4,10 @@
 package org.chabu.hwmap.ui.labeling
 
 import com.google.inject.Inject
+import org.chabu.hwmap.hwMapDsl.Block
+import org.chabu.hwmap.hwMapDsl.Component
+import org.chabu.hwmap.hwMapDsl.Instantiation
+import org.chabu.hwmap.hwMapDsl.Register
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
 
@@ -14,18 +18,31 @@ import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
  */
 class HwMapDslLabelProvider extends DefaultEObjectLabelProvider {
 
+
 	@Inject
 	new(AdapterFactoryLabelProvider delegate) {
 		super(delegate);
 	}
 
 	// Labels and icons can be computed like this:
+	def text(Component e) {
+		String.format("%s 0x%X", e.name, e.size)
+	}
+	 
+	def text(Block e) {
+		String.format("%s 0x%X", e.name, e.size)
+	}
+	 
+	def text(Register e) {
+		String.format("0x%04X: %s", e.addr, e.name)
+	}
+	 
+	def text(Instantiation e) {
+		String.format("0x%04X: %s", e.addr, e.name)
+	}
 	
-//	def text(Greeting ele) {
-//		'A greeting to ' + ele.name
-//	}
-//
-//	def image(Greeting ele) {
-//		'Greeting.gif'
-//	}
+	def image(Component     e) { 'component.png' }
+	def image(Block         e) { 'block.png' }
+	def image(Register      e) { 'register.gif' }
+	def image(Instantiation e) { 'instantiation.png' }
 }

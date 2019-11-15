@@ -12,6 +12,8 @@ import org.chabu.hwmap.hwMapDsl.Register
 import org.chabu.hwmap.hwMapDsl.RegisterBits
 import org.eclipse.xtext.validation.Check
 import java.nio.file.Paths
+import nonapi.io.github.classgraph.utils.FileUtils
+import com.google.common.io.Files
 
 /**
  * This class contains custom validation rules. 
@@ -34,6 +36,7 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 	public static val BITS_RANGE_SIZE        = PREFIX + 'BITS_RANGE_SIZE'
 	public static val BITS_RANGE_ORDER       = PREFIX + 'BITS_RANGE_ORDER'
 	public static val OUTPUT_PATH_ABSOLUTE   = PREFIX + 'OUTPUT_PATH_ABSOLUTE'
+	public static val OUTPUT_PATH_EXTENSION  = PREFIX + 'OUTPUT_PATH_EXTENSION'
 	public static val OUTPUT_MODE_UNKNOWN    = PREFIX + 'OUTPUT_MODE_UNKNOWN'
 
 	@Check
@@ -56,6 +59,20 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 				output,
 				HwMapDslPackage.Literals.OUTPUT__PATH,
 				OUTPUT_PATH_ABSOLUTE )
+		}
+		
+		val ext = Files.getFileExtension(path.fileName.toString)
+		if(output.mode == "VHDL" && ext != 'vhd' ){
+			error('Output path must have extension .vhd',
+				output,
+				HwMapDslPackage.Literals.OUTPUT__PATH,
+				OUTPUT_PATH_EXTENSION )
+		}
+		if( output.mode == "C" && ext != 'h'){
+			error('Output path must have extension .h',
+				output,
+				HwMapDslPackage.Literals.OUTPUT__PATH,
+				OUTPUT_PATH_EXTENSION )
 		}
 	}
 	

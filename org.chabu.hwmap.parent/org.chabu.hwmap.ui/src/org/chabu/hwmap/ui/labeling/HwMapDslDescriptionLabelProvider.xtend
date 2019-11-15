@@ -3,6 +3,10 @@
  */
 package org.chabu.hwmap.ui.labeling
 
+import org.chabu.hwmap.hwMapDsl.Block
+import org.chabu.hwmap.hwMapDsl.Component
+import org.chabu.hwmap.hwMapDsl.Instantiation
+import org.chabu.hwmap.hwMapDsl.Register
 import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider
 
 /**
@@ -13,11 +17,22 @@ import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider
 class HwMapDslDescriptionLabelProvider extends DefaultDescriptionLabelProvider {
 
 	// Labels and icons can be computed like this:
-	
-//	override text(IEObjectDescription ele) {
-//		ele.name.toString
+//	def text(Component e) {
+//		String.format("%s 0x%X", e.name, e.size)
 //	}
 //	 
+//	def text(Block e) {
+//		String.format("%s 0x%X", e.name, e.size)
+//	}
+//	 
+//	def text(Register e) {
+//		e.name
+//	}
+//	 
+//	def text(Instantiation e) {
+//		String.format("0x%04X: %s", e.addr, e.name)
+//	}
+	 
 //	override image(IEObjectDescription ele) {
 //		ele.EClass.name + '.gif'
 //	}

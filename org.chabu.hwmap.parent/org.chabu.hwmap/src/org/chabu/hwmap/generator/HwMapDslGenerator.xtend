@@ -159,7 +159,8 @@ class HwMapDslGenerator extends AbstractGenerator {
 	
 	def private handleInstance(Instantiation inst, Struct compStruct, Component comp ) {
 		val field = new StructField
-		field.name = '''«inst.name»'''
+		val instName = inst.name !== null ? inst.name : inst.type.name
+		field.name = '''«instName»'''
 		field.type = '''struct «compStruct.name»_«inst.type.name»'''
 	
 		val fillSize = (inst.addr - nextOffset) / align;
@@ -174,7 +175,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		vhdlInstSelect.addrIdxHi = vhdlComp.addrIdxHi
 		vhdlInstSelect.addrIdxLo =  Integer::numberOfTrailingZeros(block.size)
 		vhdlInstSelect.addrBits = bitsFromInt( inst.addr, vhdlInstSelect.addrIdxHi, vhdlInstSelect.addrIdxLo )
-		vhdlInstSelect.name = inst.name
+		vhdlInstSelect.name = instName
 		vhdlComp.insts.add(vhdlInstSelect)
 		
 		nextOffset += block.size
@@ -207,7 +208,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		}
 		nextOffset = reg.addr + align
 		for( const : reg.consts ){
-			addConstHex( '''«fieldFqn»_CONST_«const.name»''', const.value, 32 )
+			addConstHex( '''«fieldFqn»_CONST_«const.name»''', const.value )
 		}
 		for( bits : reg.bits ){
 			handleBits( bits, reg.name, fieldFqn )
@@ -222,12 +223,13 @@ class HwMapDslGenerator extends AbstractGenerator {
 		val width = highBit - lowBit +1
 		val mask = (( 1 << width ) - 1) << lowBit
 		
-		addConst( '''«bitsName»_BITPOS''', lowBit )
+		addConst( '''«bitsName»_LSB''', lowBit )
+		addConst( '''«bitsName»_MSB''', highBit )
 		addConst( '''«bitsName»_WIDTH''', width )
-		addConstHex( '''«bitsName»_MASK''', mask, width )
+		addConstHex( '''«bitsName»_MASK''', mask )
 		
 		for( const : bits.consts ){
-			addConstHex( '''«bitsName»_CONST_«const.name»''', const.value, width )
+			addConstHex( '''«bitsName»_CONST_«const.name»''', const.value )
 		}
 	}
 	
@@ -250,12 +252,12 @@ class HwMapDslGenerator extends AbstractGenerator {
 		constants.add(c)
 	}
 	
-	def private void addConstHex( String name, int value, int bitWidth ){
+	def private void addConstHex( String name, int value ){
 		val c = new Constant()
 		c.name = name
-		c.typeVhdl = '''std_logic_vector( «bitWidth-1» downto 0 )'''
+		c.typeVhdl = '''std_logic_vector( 31 downto 0 )'''
 		c.value = String.format("0x%X", value)
-		c.valueVhdl = String.format("CONV_STD_LOGIC_VECTOR( 16#%X#, %d )", value, bitWidth )
+		c.valueVhdl = String.format("CONV_STD_LOGIC_VECTOR( 16#%X#, 32 )", value )
 		constants.add(c)
 	}
 	

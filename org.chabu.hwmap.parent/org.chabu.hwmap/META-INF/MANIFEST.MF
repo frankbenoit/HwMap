@@ -26,5 +26,7 @@ Export-Package: org.chabu.hwmap.hwMapDsl,
  org.chabu.hwmap.serializer,
  org.chabu.hwmap.generator,
  org.chabu.hwmap,
- org.chabu.hwmap.validation
-Import-Package: org.apache.log4j
+ org.chabu.hwmap.validation,
+ org.chabu.hwmap.formatting2
+Import-Package: com.google.common.io,
+ org.apache.log4j

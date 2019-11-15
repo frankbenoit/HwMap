@@ -106,7 +106,7 @@ class HwMapDslValidationTest {
 		Diagnostic.LINKING_DIAGNOSTIC,
 		"Couldn't resolve reference to Block 'Rock'." )
 	}
-	
+
 	@Test
 	def void instOffsetIncreasing() {
 		parseWithValidationIssue('''
@@ -255,13 +255,37 @@ class HwMapDslValidationTest {
 	@Test
 	def void outputAbsolutePathNotAllowed() {
 		parseWithValidationIssue('''
-			Output C "c:\\one"
+			Output C "c:\\one.h"
 			Component CapSim 0x400 {
 			}
 		''',
 		HwMapDslPackage.Literals.OUTPUT,
 		HwMapDslValidator.OUTPUT_PATH_ABSOLUTE,
 		"Output path must be a relative path" )
+	}
+	
+	@Test
+	def void outputVhdlExtension() {
+		parseWithValidationIssue('''
+			Output VHDL "file.vhdl"
+			Component CapSim 0x400 {
+			}
+		''',
+		HwMapDslPackage.Literals.OUTPUT,
+		HwMapDslValidator.OUTPUT_PATH_EXTENSION,
+		"Output path must have extension .vhd" )
+	}
+	
+	@Test
+	def void outputCExtension() {
+		parseWithValidationIssue('''
+			Output C "file.hpp"
+			Component CapSim 0x400 {
+			}
+		''',
+		HwMapDslPackage.Literals.OUTPUT,
+		HwMapDslValidator.OUTPUT_PATH_EXTENSION,
+		"Output path must have extension .h" )
 	}
 	
 	@Test

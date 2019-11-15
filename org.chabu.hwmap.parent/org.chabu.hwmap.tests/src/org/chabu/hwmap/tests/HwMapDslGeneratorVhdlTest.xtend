@@ -258,6 +258,24 @@ class HwMapDslGeneratorVhdlTest {
 	
 	@Order(17)
 	@Test
+	def void blockWithoutNameSelectEval() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block RegDecl 0x20 {
+				}
+				0x100 RegDecl
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»res.Selected_RegDecl <= '1' when
+		«"  "»  addr( 9 downto 5 ) = "01000" and
+		«"  "»  cycle = '1' else '0';
+		''' )
+	}
+	
+	@Order(18)
+	@Test
 	def void blockUnmappedSelectionEval() {
 		val result = parseNoErrors('''
 			Output VHDL "out.vhd"
@@ -300,7 +318,7 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : std_logic_vector( 3 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 4 );''' )
+		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : std_logic_vector( 31 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 32 );''' )
 	}
 	
 	def MemoryMap parseNoErrors(CharSequence text){
