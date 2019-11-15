@@ -59,7 +59,7 @@ class HwMapDslGeneratorVhdlTest {
 		generateWithTextContaining( result, '''
 		«"  "»type Comp_CapSim_Selection is record
 		«"  "»  UnmappedSelection : std_logic;
-		«"  "»end record;
+		«"  "»end record Comp_CapSim_Selection;
 		''' )
 	}
 	
@@ -122,12 +122,12 @@ class HwMapDslGeneratorVhdlTest {
 		«"  "»type Block_CapSim_Registers_Selection is record
 		«"  "»  UnmappedSelection : std_logic;
 		«"  "»  Selected_Control : std_logic;
-		«"  "»end record;
+		«"  "»end record Block_CapSim_Registers_Selection;
 		
 		«"  "»type Comp_CapSim_Selection is record
 		«"  "»  Block_Registers : Block_CapSim_Registers_Selection;
 		«"  "»  UnmappedSelection : std_logic;
-		«"  "»end record;
+		«"  "»end record Comp_CapSim_Selection;
 		''' )
 	}
 	
@@ -150,7 +150,7 @@ class HwMapDslGeneratorVhdlTest {
 		«"  "»  UnmappedSelection : std_logic;
 		«"  "»  Selected_Reg1 : std_logic;
 		«"  "»  Selected_Reg2 : std_logic;
-		«"  "»end record;
+		«"  "»end record Comp_CapSim_Selection;
 		''' )
 	}
 	
@@ -192,6 +192,24 @@ class HwMapDslGeneratorVhdlTest {
 		«"  "»  cycle = '1' else '0';
 		«"  "»res.Block_RegDecl.Selected_Status <= '1' when
 		«"  "»  addr( 4 downto 2 ) = "010" and
+		«"  "»  cycle = '1' else '0';
+		''' )
+	}
+	
+	@Order(13)
+	@Test
+	def void registerSelectEvalSingleRegisterInBlock() {
+		val result = parseNoErrors('''
+			Output VHDL "out.vhd"
+			Component CapSim 0x400 {
+				Block RegDecl 0x4 {
+					0x00 Control
+				}
+				0x100 RegDecl Regs
+			}
+		''')
+		generateWithTextContaining( result, '''
+		«"  "»res.Block_RegDecl.Selected_Control <= '1' when
 		«"  "»  cycle = '1' else '0';
 		''' )
 	}

@@ -38,6 +38,7 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 	public static val OUTPUT_PATH_ABSOLUTE   = PREFIX + 'OUTPUT_PATH_ABSOLUTE'
 	public static val OUTPUT_PATH_EXTENSION  = PREFIX + 'OUTPUT_PATH_EXTENSION'
 	public static val OUTPUT_MODE_UNKNOWN    = PREFIX + 'OUTPUT_MODE_UNKNOWN'
+	public static val ID_UNDERSCORE          = PREFIX + 'ID_UNDERSCORE'
 
 	@Check
 	def checkOutputMode(Output output) {
@@ -79,6 +80,18 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 
 	@Check
 	def checkComponent(Component comp) {
+		if( comp.name.startsWith('_') || comp.name.endsWith('_')) {
+			error('''Component id «comp.name» cannot have leading or trailing underscores''',
+				comp,
+				HwMapDslPackage.Literals.COMPONENT__NAME,
+				ID_UNDERSCORE )
+		}
+		if( comp.name.contains('__') ) {
+			error('''Component id «comp.name» cannot contain multi underscores''',
+				comp,
+				HwMapDslPackage.Literals.COMPONENT__NAME,
+				ID_UNDERSCORE )
+		}
 		if( comp.size % org.chabu.hwmap.validation.HwMapDslValidator.ALIGN != 0 ){
 			error('''Component «comp.name» has non-aligned size of «comp.size».''',
 				comp,
@@ -106,6 +119,18 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 	
 	@Check
 	def checkBlock(Block block) {
+		if( block.name.startsWith('_') || block.name.endsWith('_')) {
+			error('''Block id «block.name» cannot have leading or trailing underscores''',
+				block,
+				HwMapDslPackage.Literals.BLOCK__NAME,
+				ID_UNDERSCORE )
+		}
+		if( block.name.contains('__') ) {
+			error('''Block id «block.name» cannot contain multi underscores''',
+				block,
+				HwMapDslPackage.Literals.BLOCK__NAME,
+				ID_UNDERSCORE )
+		}
 		if( block.size % org.chabu.hwmap.validation.HwMapDslValidator.ALIGN != 0 ){
 			error('''Block «block.name» has non-aligned size of «block.size».''',
 				block,
@@ -181,6 +206,19 @@ class HwMapDslValidator extends AbstractHwMapDslValidator {
 	
 	@Check
 	def checkInstantiation(Instantiation inst) {
+		val name = inst.name !== null ? inst.name : inst.type.name
+		if( name.startsWith('_') || name.endsWith('_')) {
+			error('''Instance id «name» cannot have leading or trailing underscores''',
+				inst,
+				HwMapDslPackage.Literals.INSTANTIATION__NAME,
+				ID_UNDERSCORE )
+		}
+		if( name.contains('__') ) {
+			error('''Instance id «name» cannot contain multi underscores''',
+				inst,
+				HwMapDslPackage.Literals.INSTANTIATION__NAME,
+				ID_UNDERSCORE )
+		}
 		if( inst.addr % org.chabu.hwmap.validation.HwMapDslValidator.ALIGN != 0 ){
 			error('''Instance «inst.name» has non-aligned offset of «inst.addr».''',
 				inst,

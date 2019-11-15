@@ -30,6 +30,45 @@ class HwMapDslValidationTest {
 	extension ValidationTestHelper validationHelper
 	
 	@Test
+	def void blockIdNoLeadingUnderscore() {
+		parseWithValidationIssue('''
+			Component CapSim 0x300 {
+				Block _Regs 0x20 {
+				}
+			}
+		''',
+		HwMapDslPackage.Literals.BLOCK,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Block id _Regs cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void blockIdNoTrailingUnderscore() {
+		parseWithValidationIssue('''
+			Component CapSim 0x300 {
+				Block Regs_ 0x20 {
+				}
+			}
+		''',
+		HwMapDslPackage.Literals.BLOCK,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Block id Regs_ cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void blockIdNoContainedUnderscores() {
+		parseWithValidationIssue('''
+			Component CapSim 0x300 {
+				Block R__egs 0x20 {
+				}
+			}
+		''',
+		HwMapDslPackage.Literals.BLOCK,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Block id R__egs cannot contain multi underscores" )
+	}
+
+	@Test
 	def void blockSizeAligned() {
 		parseWithValidationIssue('''
 			Component CapSim 0x400 {
@@ -67,6 +106,39 @@ class HwMapDslValidationTest {
 	}
 	
 	@Test
+	def void compIdNoLeadingUnderscore() {
+		parseWithValidationIssue('''
+			Component _CapSim 0x300 {
+			}
+		''',
+		HwMapDslPackage.Literals.COMPONENT,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Component id _CapSim cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void compIdNoTrailingUnderscore() {
+		parseWithValidationIssue('''
+			Component CapSim_ 0x300 {
+			}
+		''',
+		HwMapDslPackage.Literals.COMPONENT,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Component id CapSim_ cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void compIdNoContainedUnderscores() {
+		parseWithValidationIssue('''
+			Component Cap__Sim 0x300 {
+			}
+		''',
+		HwMapDslPackage.Literals.COMPONENT,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Component id Cap__Sim cannot contain multi underscores" )
+	}
+	
+	@Test
 	def void blockSizePower2() {
 		parseWithValidationIssue('''
 			Component CapSim 0x400 {
@@ -93,6 +165,48 @@ class HwMapDslValidationTest {
 		"Instance Regs has non-aligned offset" )
 	}
 	
+	@Test
+	def void instIdNoLeadingUnderscore() {
+		parseWithValidationIssue('''
+			Component CapSim 0x100 {
+				Block Regs 0x20 {
+				}
+				0x0 Regs _R
+			}
+		''',
+		HwMapDslPackage.Literals.INSTANTIATION,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Instance id _R cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void instIdNoTrailingUnderscore() {
+		parseWithValidationIssue('''
+			Component CapSim 0x100 {
+				Block Regs 0x20 {
+				}
+				0x0 Regs R_
+			}
+		''',
+		HwMapDslPackage.Literals.INSTANTIATION,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Instance id R_ cannot have leading or trailing underscores" )
+	}
+	
+	@Test
+	def void instIdNoContainedUnderscores() {
+		parseWithValidationIssue('''
+			Component CapSim 0x100 {
+				Block Regs 0x20 {
+				}
+				0x0 Regs R__e
+			}
+		''',
+		HwMapDslPackage.Literals.INSTANTIATION,
+		HwMapDslValidator.ID_UNDERSCORE,
+		"Instance id R__e cannot contain multi underscores" )
+	}
+
 	@Test
 	def void instCannotResolveBlock() {
 		parseWithValidationIssue('''

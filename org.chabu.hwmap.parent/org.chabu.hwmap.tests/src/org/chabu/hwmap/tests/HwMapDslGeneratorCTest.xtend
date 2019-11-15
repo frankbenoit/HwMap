@@ -48,7 +48,10 @@ class HwMapDslGeneratorCTest {
 			Component CapSim 0x400 {
 			}
 		''')
-		generateWithTextContaining( result, "struct CapSim {" )
+		generateWithTextContaining( result, '''
+		struct CapSim {
+		};
+		''' )
 	}
 	
 	@Test

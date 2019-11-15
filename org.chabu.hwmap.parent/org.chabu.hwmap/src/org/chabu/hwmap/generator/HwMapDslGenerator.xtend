@@ -283,7 +283,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		    «FOR f:s.fields»
 		    «f.type» «f.name»«f.arrayDim»;
 		    «ENDFOR»
-		}
+		};
 		«ENDFOR»
 		
 		#endif
@@ -314,7 +314,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		    «FOR r:b.registers»
 		 «"    "»Selected_«r.name» : std_logic;
 		    «ENDFOR»
-		  end record;
+		  end record Block_«c.name»_«b.name»_Selection;
 
 		  «ENDFOR»
 		  type Comp_«c.name»_Selection is record
@@ -325,7 +325,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		    «FOR i:c.insts»
 		 «"    "»Selected_«i.name» : std_logic;
 		    «ENDFOR»
-		  end record;
+		  end record Comp_«c.name»_Selection;
 
 		  «ENDFOR»
 		end package «id»_pck;
@@ -353,7 +353,9 @@ class HwMapDslGenerator extends AbstractGenerator {
 		  «FOR b:c.blocks»
 		  «FOR r:b.registers»
 		  res.Block_«b.name».Selected_«r.name» <= '1' when
+		    «IF(b.addrIdxHi >= b.addrIdxLo)»
 		    addr( «b.addrIdxHi» downto «b.addrIdxLo» ) = "«r.addrBits»" and
+		    «ENDIF»
 		    cycle = '1' else '0';
 		  «ENDFOR»
 		  res.Block_«b.name».UnmappedSelection <= '1' when
