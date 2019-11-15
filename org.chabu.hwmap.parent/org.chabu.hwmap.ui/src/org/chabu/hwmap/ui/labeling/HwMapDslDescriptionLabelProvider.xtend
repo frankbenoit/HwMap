@@ -3,10 +3,6 @@
  */
 package org.chabu.hwmap.ui.labeling
 
-import org.chabu.hwmap.hwMapDsl.Block
-import org.chabu.hwmap.hwMapDsl.Component
-import org.chabu.hwmap.hwMapDsl.Instantiation
-import org.chabu.hwmap.hwMapDsl.Register
 import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider
 
 /**
