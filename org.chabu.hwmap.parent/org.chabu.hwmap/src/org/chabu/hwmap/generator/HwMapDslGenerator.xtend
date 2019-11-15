@@ -257,7 +257,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		c.name = name
 		c.typeVhdl = '''std_logic_vector( 31 downto 0 )'''
 		c.value = String.format("0x%X", value)
-		c.valueVhdl = String.format("CONV_STD_LOGIC_VECTOR( 16#%X#, 32 )", value )
+		c.valueVhdl = String.format("x\"%08X\"", value )
 		constants.add(c)
 	}
 	

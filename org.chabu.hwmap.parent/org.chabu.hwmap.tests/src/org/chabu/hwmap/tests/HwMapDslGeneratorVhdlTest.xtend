@@ -321,7 +321,7 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_CONST_C2 : std_logic_vector( 31 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 32 );''' )
+		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_CONST_C2 : std_logic_vector( 31 downto 0 ) := x"00000123";''' )
 	}
 	
 	@Test
@@ -336,7 +336,7 @@ class HwMapDslGeneratorVhdlTest {
 				}
 			}
 		''')
-		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : std_logic_vector( 31 downto 0 ) := CONV_STD_LOGIC_VECTOR( 16#123#, 32 );''' )
+		generateWithTextContaining( result, '''constant CapSim_RegDecl_Control_Cmd_CONST_C2 : std_logic_vector( 31 downto 0 ) := x"00000123";''' )
 	}
 	
 	def MemoryMap parseNoErrors(CharSequence text){
