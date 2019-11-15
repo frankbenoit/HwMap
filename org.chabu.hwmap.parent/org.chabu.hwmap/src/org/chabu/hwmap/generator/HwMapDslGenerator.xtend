@@ -339,7 +339,7 @@ class HwMapDslGenerator extends AbstractGenerator {
 		    addr  : in std_logic_vector( «c.addrIdxHi» downto 0 );
 		    cycle : in std_logic;
 		    selection : out work.«id»_pck.Comp_«c.name»_Selection );
-		end out_Decoder_CapSim;
+		end «id»_Decoder_«c.name»;
 		
 		architecture Behavioral of «id»_Decoder_«c.name» is
 		  signal res : work.«id»_pck.Comp_«c.name»_Selection;
